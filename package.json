@@ -1,0 +1,57 @@
+{
+  "name": "@ftgo/source",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {},
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "@deepkit/type-compiler": "^1.0.1-alpha.150",
+    "@deepkit/vite": "^1.0.1-alpha.150",
+    "@nx/eslint": "19.5.7",
+    "@nx/eslint-plugin": "19.5.7",
+    "@nx/js": "19.5.7",
+    "@nx/node": "^19.5.7",
+    "@nx/vite": "^19.5.7",
+    "@nx/workspace": "19.5.7",
+    "@types/node": "~18.16.9",
+    "@typescript-eslint/eslint-plugin": "^7.16.0",
+    "@typescript-eslint/parser": "^7.16.0",
+    "@vitest/coverage-v8": "^1.0.4",
+    "@vitest/ui": "^1.3.1",
+    "eslint": "~8.57.0",
+    "eslint-config-prettier": "^9.0.0",
+    "nx": "19.5.7",
+    "prettier": "^3.3.3",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.0",
+    "vitest": "^2.0.5"
+  },
+  "patchedDependencies": {
+    "typescript@5.5.4": "patches/typescript@5.5.4.patch"
+  },
+  "dependencies": {
+    "@deepkit/app": "^1.0.1-alpha.153",
+    "@deepkit/broker": "^1.0.1-alpha.153",
+    "@deepkit/bson": "^1.0.1-alpha.153",
+    "@deepkit/core": "^1.0.1-alpha.147",
+    "@deepkit/event": "^1.0.1-alpha.153",
+    "@deepkit/filesystem": "^1.0.1-alpha.147",
+    "@deepkit/framework": "^1.0.1-alpha.153",
+    "@deepkit/injector": "^1.0.1-alpha.153",
+    "@deepkit/orm": "^1.0.1-alpha.153",
+    "@deepkit/postgres": "^1.0.1-alpha.153",
+    "@deepkit/sql": "^1.0.1-alpha.153",
+    "@deepkit/type": "^1.0.1-alpha.153",
+    "deepkit-restate": "^0.0.27",
+    "tslib": "2.6.3"
+  },
+  "engines": {
+    "node": "22.6.0",
+    "bun": "1.1.22"
+  },
+  "trustedDependencies": [
+    "@deepkit/type-compiler",
+    "nx"
+  ]
+}

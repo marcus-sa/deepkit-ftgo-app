@@ -1,0 +1,104 @@
+{
+  "name": "kitchen-service",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "ftgo",
+  "sourceRoot": "kitchen-service/src",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "development",
+      "inputs": ["kitchen-service"],
+      "options": {
+        "buildLibsFromSource": false,
+        "generatePackageJson": true,
+        "outputPath": "dist/kitchen-service",
+        "ssr": "src/main.ts",
+        "emptyOutDir": true,
+        "outputFileName": "main.mjs"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "kitchen-service:build",
+        "watch": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "kitchen-service:build:development",
+          "args": ["kitchen-service:start"],
+          "watch": true
+        },
+        "production": {
+          "buildTarget": "kitchen-service:build:production"
+        },
+        "staging": {
+          "buildTarget": "kitchen-service:build:staging"
+        }
+      }
+    },
+    "container": {
+      "executor": "@nx-tools/nx-container:build",
+      "dependsOn": ["build"],
+      "options": {
+        "engine": "docker",
+        "push": true,
+        "cache-from": ["type=gha"],
+        "cache-to": ["type=gha,mode=max"],
+        "metadata": {
+          "images": ["ghcr.io/zapxme/kitchen-service"],
+          "tags": [
+            "type=schedule",
+            "type=ref,event=branch",
+            "type=ref,event=tag",
+            "type=ref,event=pr",
+            "type=sha,prefix=sha-"
+          ]
+        }
+      }
+    },
+    "create-migration": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "kitchen-service:build",
+        "args": [
+          "migration:create",
+          "--migrationDir",
+          "kitchen-service/src/migrations"
+        ],
+        "watch": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "kitchen-service:build:development"
+        },
+        "production": {
+          "buildTarget": "kitchen-service:build:production"
+        },
+        "staging": {
+          "buildTarget": "kitchen-service:build:staging"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{projectRoot}/coverage"]
+    }
+  }
+}

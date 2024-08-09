@@ -1,0 +1,26 @@
+{
+  "name": "delivery-service-api",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "delivery-service-api/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/delivery-service-api",
+        "main": "delivery-service-api/src/index.ts",
+        "tsConfig": "delivery-service-api/tsconfig.lib.json",
+        "assets": ["delivery-service-api/*.md"]
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../coverage/delivery-service-api"
+      }
+    }
+  }
+}

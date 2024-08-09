@@ -1,0 +1,24 @@
+services:
+  postgres:
+    image: docker.io/postgres:16.4-alpine3.19
+    ports:
+      - '${DATABASE_PORT}:5432'
+    environment:
+      - 'POSTGRES_DATABASE=${DATABASE_NAME}'
+      - 'POSTGRES_USER=${DATABASE_USER}'
+      - 'POSTGRES_PASSWORD=${DATABASE_PASSWORD}'
+    volumes:
+      - ./scripts/postgres:/docker-entrypoint-initdb.d
+      - postgres:/var/lib/postgresql/data
+
+  restate:
+    image: docker.io/restatedev/restate:1.0
+    ports:
+      - '${RESTATE_INGRESS_PORT}:8080'
+      - '${RESTATE_ADMIN_PORT}:9070'
+    environment:
+      - 'RESTATE_CONFIG=/etc/config/restate.toml'
+    volumes:
+      - ./infra/restate/restate.toml:/etc/config/restate.toml
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'

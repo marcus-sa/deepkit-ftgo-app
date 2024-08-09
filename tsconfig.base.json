@@ -1,0 +1,55 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "strictPropertyInitialization": false,
+    "emitDecoratorMetadata": true,
+    "useDefineForClassFields": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "noImplicitReturns": true,
+    "preserveSymlinks": true,
+    "noFallthroughCasesInSwitch": true,
+    "strict": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "esnext",
+    "module": "esnext",
+    "lib": [
+      "esnext",
+      "dom"
+    ],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "types": [
+      "node"
+    ],
+    "paths": {
+      "@ftgo/consumer-service-api": [
+        "consumer-service-api/src/index.ts"
+      ],
+      "@ftgo/delivery-service-api": [
+        "delivery-service-api/src/index.ts"
+      ],
+      "@ftgo/kitchen-service-api": [
+        "kitchen-service-api/src/index.ts"
+      ],
+      "@ftgo/order-service-api": [
+        "order-service-api/src/index.ts"
+      ],
+      "@ftgo/restaurant-service-api": [
+        "restaurant-service-api/src/index.ts"
+      ],
+      "@ftgo/shared": [
+        "shared/src/index.ts"
+      ]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}

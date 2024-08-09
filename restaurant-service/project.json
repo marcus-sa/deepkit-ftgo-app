@@ -1,0 +1,104 @@
+{
+  "name": "restaurant-service",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "ftgo",
+  "sourceRoot": "restaurant-service/src",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "development",
+      "inputs": ["restaurant-service"],
+      "options": {
+        "buildLibsFromSource": false,
+        "generatePackageJson": true,
+        "outputPath": "dist/restaurant-service",
+        "ssr": "src/main.ts",
+        "emptyOutDir": true,
+        "outputFileName": "main.mjs"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "restaurant-service:build",
+        "watch": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "restaurant-service:build:development",
+          "args": ["restaurant-service:start"],
+          "watch": true
+        },
+        "production": {
+          "buildTarget": "restaurant-service:build:production"
+        },
+        "staging": {
+          "buildTarget": "restaurant-service:build:staging"
+        }
+      }
+    },
+    "container": {
+      "executor": "@nx-tools/nx-container:build",
+      "dependsOn": ["build"],
+      "options": {
+        "engine": "docker",
+        "push": true,
+        "cache-from": ["type=gha"],
+        "cache-to": ["type=gha,mode=max"],
+        "metadata": {
+          "images": ["ghcr.io/zapxme/restaurant-service"],
+          "tags": [
+            "type=schedule",
+            "type=ref,event=branch",
+            "type=ref,event=tag",
+            "type=ref,event=pr",
+            "type=sha,prefix=sha-"
+          ]
+        }
+      }
+    },
+    "create-migration": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "restaurant-service:build",
+        "args": [
+          "migration:create",
+          "--migrationDir",
+          "restaurant-service/src/migrations"
+        ],
+        "watch": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "restaurant-service:build:development"
+        },
+        "production": {
+          "buildTarget": "restaurant-service:build:production"
+        },
+        "staging": {
+          "buildTarget": "restaurant-service:build:staging"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{projectRoot}/coverage"]
+    }
+  }
+}

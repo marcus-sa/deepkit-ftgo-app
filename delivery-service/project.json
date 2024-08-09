@@ -1,0 +1,104 @@
+{
+  "name": "delivery-service",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "ftgo",
+  "sourceRoot": "delivery-service/src",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "development",
+      "inputs": ["delivery-service"],
+      "options": {
+        "buildLibsFromSource": false,
+        "generatePackageJson": true,
+        "outputPath": "dist/delivery-service",
+        "ssr": "src/main.ts",
+        "emptyOutDir": true,
+        "outputFileName": "main.mjs"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "delivery-service:build",
+        "watch": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "delivery-service:build:development",
+          "args": ["delivery-service:start"],
+          "watch": true
+        },
+        "production": {
+          "buildTarget": "delivery-service:build:production"
+        },
+        "staging": {
+          "buildTarget": "delivery-service:build:staging"
+        }
+      }
+    },
+    "container": {
+      "executor": "@nx-tools/nx-container:build",
+      "dependsOn": ["build"],
+      "options": {
+        "engine": "docker",
+        "push": true,
+        "cache-from": ["type=gha"],
+        "cache-to": ["type=gha,mode=max"],
+        "metadata": {
+          "images": ["ghcr.io/zapxme/delivery-service"],
+          "tags": [
+            "type=schedule",
+            "type=ref,event=branch",
+            "type=ref,event=tag",
+            "type=ref,event=pr",
+            "type=sha,prefix=sha-"
+          ]
+        }
+      }
+    },
+    "create-migration": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "delivery-service:build",
+        "args": [
+          "migration:create",
+          "--migrationDir",
+          "delivery-service/src/migrations"
+        ],
+        "watch": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "delivery-service:build:development"
+        },
+        "production": {
+          "buildTarget": "delivery-service:build:production"
+        },
+        "staging": {
+          "buildTarget": "delivery-service:build:staging"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{projectRoot}/coverage"]
+    }
+  }
+}

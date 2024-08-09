@@ -1,0 +1,104 @@
+{
+  "name": "api-gateway",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "ftgo",
+  "sourceRoot": "api-gateway/src",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "development",
+      "inputs": ["api-gateway"],
+      "options": {
+        "buildLibsFromSource": false,
+        "generatePackageJson": true,
+        "outputPath": "dist/api-gateway",
+        "ssr": "src/main.ts",
+        "emptyOutDir": true,
+        "outputFileName": "main.mjs"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "api-gateway:build",
+        "watch": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "api-gateway:build:development",
+          "args": ["api-gateway:start"],
+          "watch": true
+        },
+        "production": {
+          "buildTarget": "api-gateway:build:production"
+        },
+        "staging": {
+          "buildTarget": "api-gateway:build:staging"
+        }
+      }
+    },
+    "container": {
+      "executor": "@nx-tools/nx-container:build",
+      "dependsOn": ["build"],
+      "options": {
+        "engine": "docker",
+        "push": true,
+        "cache-from": ["type=gha"],
+        "cache-to": ["type=gha,mode=max"],
+        "metadata": {
+          "images": ["ghcr.io/zapxme/api-gateway"],
+          "tags": [
+            "type=schedule",
+            "type=ref,event=branch",
+            "type=ref,event=tag",
+            "type=ref,event=pr",
+            "type=sha,prefix=sha-"
+          ]
+        }
+      }
+    },
+    "create-migration": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "api-gateway:build",
+        "args": [
+          "migration:create",
+          "--migrationDir",
+          "api-gateway/src/migrations"
+        ],
+        "watch": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "api-gateway:build:development"
+        },
+        "production": {
+          "buildTarget": "api-gateway:build:production"
+        },
+        "staging": {
+          "buildTarget": "api-gateway:build:staging"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{projectRoot}/coverage"]
+    }
+  }
+}
