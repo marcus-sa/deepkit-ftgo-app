@@ -38,12 +38,14 @@
     "@deepkit/event": "^1.0.1-alpha.153",
     "@deepkit/filesystem": "^1.0.1-alpha.147",
     "@deepkit/framework": "^1.0.1-alpha.153",
+    "@deepkit/http": "^1.0.1-alpha.153",
     "@deepkit/injector": "^1.0.1-alpha.153",
     "@deepkit/orm": "^1.0.1-alpha.153",
     "@deepkit/postgres": "^1.0.1-alpha.153",
     "@deepkit/sql": "^1.0.1-alpha.153",
     "@deepkit/type": "^1.0.1-alpha.153",
-    "deepkit-restate": "^0.0.27",
+    "deepkit-restate": "^0.0.33",
+    "kafkajs": "2.2.4",
     "tslib": "2.6.3"
   },
   "engines": {

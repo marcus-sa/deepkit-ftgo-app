@@ -1,9 +1,3 @@
-import { FrameworkConfig } from '@deepkit/framework';
+import { ServiceConfig } from '@ftgo/common';
 
-import { DatabaseConfig, RestateConfig } from '@ftgo/shared';
-
-export class ConsumerServiceConfig {
-  readonly database: DatabaseConfig;
-  readonly restate: RestateConfig;
-  readonly framework?: FrameworkConfig;
-}
+export class ConsumerServiceConfig extends ServiceConfig {}

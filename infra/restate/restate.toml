@@ -1,3 +1,0 @@
-[worker.invoker.retry-policy]
-initial-interval = "50ms"
-max-attempts = 3

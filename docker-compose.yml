@@ -8,17 +8,24 @@ services:
       - 'POSTGRES_USER=${DATABASE_USER}'
       - 'POSTGRES_PASSWORD=${DATABASE_PASSWORD}'
     volumes:
-      - ./scripts/postgres:/docker-entrypoint-initdb.d
       - postgres:/var/lib/postgresql/data
+
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v24.2.2
+    ports:
+      - '8081:8081'
+      - '8082:8082'
+      - '9092:9092'
+      - '19644:9644'
 
   restate:
     image: docker.io/restatedev/restate:1.0
     ports:
-      - '${RESTATE_INGRESS_PORT}:8080'
-      - '${RESTATE_ADMIN_PORT}:9070'
+      - '8080:8080'
+      - '9070:9070'
     environment:
-      - 'RESTATE_CONFIG=/etc/config/restate.toml'
+      - 'RESTATE_CONFIG=/etc/config/config.toml'
     volumes:
-      - ./infra/restate/restate.toml:/etc/config/restate.toml
+      - ./infra/restate/config.toml:/etc/config/restate.toml
     extra_hosts:
       - 'host.docker.internal:host-gateway'

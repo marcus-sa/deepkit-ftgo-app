@@ -1,0 +1,7 @@
+[worker.invoker.retry-policy]
+initial-interval = "100ms"
+max-attempts = 5
+
+[[ingress.kafka-clusters]]
+name = "default"
+brokers = ["PLAINTEXT://<host>:9092"]

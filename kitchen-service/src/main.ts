@@ -1,1 +1,26 @@
-console.log('Hello World');
+import { App } from '@deepkit/app';
+import { FrameworkModule } from '@deepkit/framework';
+import { RestateModule } from 'deepkit-restate';
+
+import { provideDatabase } from '@ftgo/common';
+
+import { KitchenServiceConfig } from './config';
+import { KitchenRepository } from './kitchen.repository';
+import { KitchenController } from './kitchen.controller';
+import { KitchenService } from './kitchen.service';
+
+void new App({
+  config: KitchenServiceConfig,
+  imports: [new FrameworkModule(), new RestateModule()],
+  controllers: [KitchenController, KitchenService],
+  providers: [provideDatabase([]), KitchenRepository],
+})
+  .setup((module, config: KitchenServiceConfig) => {
+    module
+      .getImportedModuleByClass(FrameworkModule)
+      .configure(config.framework);
+
+    module.getImportedModuleByClass(RestateModule).configure(config.restate);
+  })
+  .loadConfigFromEnv({ prefix: '' })
+  .run();

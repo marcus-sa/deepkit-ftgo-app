@@ -31,6 +31,9 @@
       "node"
     ],
     "paths": {
+      "@ftgo/accounting-service-api": [
+        "accounting-service-api/src/index.ts"
+      ],
       "@ftgo/consumer-service-api": [
         "consumer-service-api/src/index.ts"
       ],
@@ -46,8 +49,8 @@
       "@ftgo/restaurant-service-api": [
         "restaurant-service-api/src/index.ts"
       ],
-      "@ftgo/shared": [
-        "shared/src/index.ts"
+      "@ftgo/common": [
+        "common/src/index.ts"
       ]
     }
   },

@@ -1,1 +1,4 @@
-export * from './lib/restaurant-service-api';
+export * from './lib/entities';
+export * from './lib/dtos';
+export * from './lib/service';
+export * from './lib/topics';

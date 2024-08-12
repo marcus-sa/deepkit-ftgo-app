@@ -1,1 +1,2 @@
-export * from './lib/order-service-api';
+export * from './lib/entities';
+export * from './lib/service';
