@@ -1,4 +1,4 @@
 import { http } from '@deepkit/http';
 
-@http.controller('')
+@http.controller('delivery')
 export class DeliveryController {}

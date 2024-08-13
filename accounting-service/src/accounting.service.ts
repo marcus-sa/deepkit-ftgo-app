@@ -10,9 +10,7 @@ import { AccountRepository } from './account.repository.js';
 
 @restate.service<AccountingServiceApi>()
 export class AccountingService implements AccountingServiceHandlers {
-  constructor(
-    private readonly accountRepository: AccountRepository,
-  ) {}
+  constructor(private readonly accountRepository: AccountRepository) {}
 
   // @ts-ignore
   @(restate.kafka<KafkaConsumerTopic>().handler())

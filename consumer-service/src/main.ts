@@ -4,13 +4,9 @@ import { RestateKafkaProducerModule } from 'deepkit-restate/kafka';
 import { RestateModule } from 'deepkit-restate';
 
 import { provideDatabase } from '@ftgo/common';
-import {
-  Account,
-  provideAccountingServiceApi,
-} from '@ftgo/accounting-service-api';
+import { Consumer } from '@ftgo/consumer-service-api';
 
 import { ConsumerServiceConfig } from './config.js';
-import { ConsumerController } from './consumer.controller.js';
 import { ConsumerService } from './consumer.service.js';
 import { ConsumerRepository } from './consumer.repository.js';
 
@@ -25,12 +21,8 @@ void new App({
       brokers: [''],
     }),
   ],
-  controllers: [ConsumerController, ConsumerService],
-  providers: [
-    provideDatabase([Account]),
-    provideAccountingServiceApi(),
-    ConsumerRepository,
-  ],
+  controllers: [ConsumerService],
+  providers: [provideDatabase([Consumer]), ConsumerRepository],
 })
   .setup((module, config: ConsumerServiceConfig) => {
     module

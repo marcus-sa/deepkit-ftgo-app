@@ -3,17 +3,17 @@ import { FrameworkModule } from '@deepkit/framework';
 import { RestateModule } from 'deepkit-restate';
 
 import { provideDatabase } from '@ftgo/common';
+import { Delivery } from '@ftgo/delivery-service-api';
 
 import { DeliveryServiceConfig } from './config.js';
 import { DeliveryRepository } from './delivery.repository.js';
-import { DeliveryController } from './delivery.controller.js';
 import { DeliveryService } from './delivery.service.js';
 
 void new App({
   config: DeliveryServiceConfig,
   imports: [new FrameworkModule(), new RestateModule()],
-  controllers: [DeliveryController, DeliveryService],
-  providers: [provideDatabase([]), DeliveryRepository],
+  controllers: [DeliveryService],
+  providers: [provideDatabase([Delivery]), DeliveryRepository],
 })
   .setup((module, config: DeliveryServiceConfig) => {
     module

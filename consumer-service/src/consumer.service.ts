@@ -21,7 +21,7 @@ export class ConsumerService implements ConsumerServiceHandlers {
 
   @restate.handler()
   async create(name: PersonName): Promise<UUID> {
-    const consumer = await this.consumer.create({ name }) as Consumer;
+    const consumer = (await this.consumer.create({ name })) as Consumer;
     await this.kafka.produce<KafkaConsumerTopic>([consumer]);
     return consumer.id;
   }

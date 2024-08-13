@@ -10,7 +10,6 @@ import {
 import { provideDatabase } from '@ftgo/common';
 
 import { RestaurantServiceConfig } from './config.js';
-import { RestaurantController } from './restaurant.controller.js';
 import { RestaurantService } from './restaurant.service.js';
 import { RestaurantRepository } from './restaurant.repository.js';
 
@@ -24,12 +23,8 @@ void new App({
       brokers: [],
     }),
   ],
-  controllers: [RestaurantController, RestaurantService],
-  providers: [
-    provideDatabase([Restaurant]),
-    provideRestaurantServiceApi(),
-    RestaurantRepository,
-  ],
+  controllers: [RestaurantService],
+  providers: [provideDatabase([Restaurant]), RestaurantRepository],
 })
   .setup((module, config: RestaurantServiceConfig) => {
     module
