@@ -20,7 +20,6 @@ export class RestaurantService implements RestaurantServiceHandlers {
 
   @restate.handler()
   async create(request: CreateRestaurantRequest): Promise<Restaurant> {
-    // FIXME: why is type T and not Restaurant ?
     const restaurant = (await this.restaurant.create(request)) as Restaurant;
     await this.kafka.produce<KafkaRestaurantCreatedTopic>([restaurant]);
     return restaurant;

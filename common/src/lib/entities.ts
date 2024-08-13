@@ -1,7 +1,8 @@
-import { float } from '@deepkit/type';
+import { float, integer, Positive, UUID } from '@deepkit/type';
 
 export class Money {
   static ZERO = new Money(0);
+  static MAX = new Money(Number.MAX_SAFE_INTEGER);
 
   constructor(readonly amount: float) {}
 
@@ -17,7 +18,14 @@ export class Money {
     return this === other || this.amount === other.amount;
   }
 
-  multiply(other: Money): Money {
-    return new Money(this.amount * other.amount);
+  multiply(amount: float): Money {
+    return new Money(this.amount * amount);
   }
+}
+
+export class RevisedOrderLineItem {
+  constructor(
+    readonly quantity: integer & Positive,
+    readonly menuItemId: UUID,
+  ) {}
 }

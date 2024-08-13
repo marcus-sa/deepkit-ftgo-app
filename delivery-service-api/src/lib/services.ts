@@ -9,11 +9,3 @@ export type DeliveryServiceApi = RestateService<
   'Delivery',
   DeliveryServiceHandlers
 >;
-
-export function provideDeliveryServiceApi(): FactoryProvider<DeliveryServiceApi> {
-  return {
-    provide: typeOf<DeliveryServiceApi>(),
-    useFactory: (restate: RestateClient) =>
-      restate.service<DeliveryServiceApi>(),
-  };
-}

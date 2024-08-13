@@ -13,11 +13,3 @@ export type RestaurantServiceApi = RestateService<
   'Restaurant',
   RestaurantServiceHandlers
 >;
-
-export function provideRestaurantServiceApi(): FactoryProvider<RestaurantServiceApi> {
-  return {
-    provide: typeOf<RestaurantServiceApi>(),
-    useFactory: (restate: RestateClient) =>
-      restate.service<RestaurantServiceApi>(),
-  };
-}

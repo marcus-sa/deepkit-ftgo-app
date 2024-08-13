@@ -1,15 +1,6 @@
 import { ClassType } from '@deepkit/core';
-import {
-  ChangesInterface,
-  DeepPartial,
-  JSONEntity,
-  JSONPartial,
-} from '@deepkit/type';
-import {
-  RestateContextStorage,
-  RestateCustomContext,
-  RunAction,
-} from 'deepkit-restate';
+import { ChangesInterface, DeepPartial, JSONPartial } from '@deepkit/type';
+import { RestateContextStorage, RestateCustomContext } from 'deepkit-restate';
 import {
   Database,
   DatabaseQueryModel,
@@ -18,9 +9,7 @@ import {
   PatchResult,
 } from '@deepkit/orm';
 
-export function RestateRepository<T extends OrmEntity>(
-  entity: ClassType<T> & { create(data: JSONPartial<T>): T },
-) {
+export function RestateRepository<E extends OrmEntity>(entity: ClassType<E>) {
   return class Repository {
     constructor(
       readonly contextStorage: RestateContextStorage,
@@ -28,45 +17,45 @@ export function RestateRepository<T extends OrmEntity>(
     ) {}
 
     get #ctx(): Pick<RestateCustomContext, 'run'> {
-      return (
-        this.contextStorage.getStore() || {
-          run: async (action: RunAction<any>) => action(),
-        }
-      );
+      return this.contextStorage.getStore()!;
     }
 
-    // async findOne(filter: DatabaseQueryModel<T>['filter']): Promise<T> {
+    // async findOne(filter: DatabaseQueryModel<E>['filter']): Promise<E> {
     //   return await this.database.query(entity).filter(filter).findOne();
     // }
 
     async delete(
-      filter: DatabaseQueryModel<T>['filter'],
-    ): Promise<DeleteResult<T>> {
-      return await this.#ctx.run<DeleteResult<T>>(() =>
+      filter: DatabaseQueryModel<E>['filter'],
+    ): Promise<DeleteResult<E>> {
+      return await this.#ctx.run<DeleteResult<E>>(() =>
         this.database.query(entity).filter(filter).deleteOne(),
       );
     }
 
-    // async find(filter: DatabaseQueryModel<T>['filter']): Promise<readonly T[]> {
+    // async find(filter: DatabaseQueryModel<E>['filter']): Promise<readonly E[]> {
     //   return await this.database.query(entity).filter(filter).find();
     // }
 
-    async find(filter: DatabaseQueryModel<T>['filter']): Promise<T> {
+    async find(filter: DatabaseQueryModel<E>['filter']): Promise<E> {
       return await this.database.query(entity).filter(filter).findOne();
     }
 
-    async update(
-      filter: DatabaseQueryModel<T>['filter'],
-      changes: ChangesInterface<T> | DeepPartial<T>,
-    ): Promise<PatchResult<T>> {
-      return await this.#ctx.run<PatchResult<T>>(() =>
+    async persist(entity: E): Promise<void> {
+      await this.#ctx.run(() => this.database.persist(entity));
+    }
+
+    async patch(
+      filter: DatabaseQueryModel<E>['filter'],
+      changes: ChangesInterface<E> | DeepPartial<E>,
+    ): Promise<PatchResult<E>> {
+      return await this.#ctx.run<PatchResult<E>>(() =>
         this.database.query(entity).filter(filter).patchOne(changes),
       );
     }
 
-    async create(data: JSONPartial<T>): Promise<T> {
-      return await this.#ctx.run<T>(async () => {
-        const et = entity.create(data);
+    async create(...args: ConstructorParameters<ClassType<E>>): Promise<E> {
+      return await this.#ctx.run<E>(async () => {
+        const et = new entity(...args);
         await this.database.persist(et);
         return et;
       });

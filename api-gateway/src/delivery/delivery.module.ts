@@ -1,10 +1,11 @@
 import { createModule } from '@deepkit/app';
+import { provideRestateServiceProxy } from 'deepkit-restate';
 
-import { provideDeliveryServiceApi } from '@ftgo/delivery-service-api';
+import { DeliveryServiceApi } from '@ftgo/delivery-service-api';
 
 import { DeliveryController } from './delivery.controller';
 
 export class DeliveryModule extends createModule({
   controllers: [DeliveryController],
-  providers: [provideDeliveryServiceApi()],
+  providers: [provideRestateServiceProxy<DeliveryServiceApi>()],
 }) {}

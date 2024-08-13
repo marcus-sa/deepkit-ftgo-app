@@ -21,7 +21,7 @@
     "@deepkit/postgres": "^1.0.1-alpha.153",
     "@deepkit/sql": "^1.0.1-alpha.153",
     "@deepkit/type": "^1.0.1-alpha.153",
-    "deepkit-restate": "^0.0.37",
+    "deepkit-restate": "^0.0.39",
     "kafkajs": "2.2.4",
     "tslib": "2.6.3"
   },
@@ -49,6 +49,7 @@
     "jsdom": "~22.1.0",
     "nx": "19.5.7",
     "prettier": "^3.3.3",
+    "type-fest": "^4.24.0",
     "typescript": "^5.5.4",
     "vite": "^5.4.0",
     "vitest": "^2.0.5",

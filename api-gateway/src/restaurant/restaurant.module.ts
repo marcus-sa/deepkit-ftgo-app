@@ -1,10 +1,11 @@
 import { createModule } from '@deepkit/app';
+import { provideRestateServiceProxy } from 'deepkit-restate';
 
-import { provideRestaurantServiceApi } from '@ftgo/restaurant-service-api';
+import { RestaurantServiceApi } from '@ftgo/restaurant-service-api';
 
 import { RestaurantController } from './restaurant.controller';
 
 export class RestaurantModule extends createModule({
   controllers: [RestaurantController],
-  providers: [provideRestaurantServiceApi()],
+  providers: [provideRestateServiceProxy<RestaurantServiceApi>()],
 }) {}

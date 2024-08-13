@@ -1,13 +1,8 @@
-import { entity, JSONEntity, JSONPartial, uuid, UUID } from '@deepkit/type';
-
-import { Consumer } from '@ftgo/consumer-service-api';
+import { entity, uuid, UUID } from '@deepkit/type';
 
 @entity.name('account')
 export class Account {
   readonly id: UUID = uuid();
-  readonly consumerId: Consumer['id'];
 
-  static create(data: JSONPartial<Account>): Account {
-    return Object.assign(new Account(), data);
-  }
+  constructor(readonly consumerId: UUID) {}
 }
