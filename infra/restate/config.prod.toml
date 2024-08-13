@@ -1,7 +1,16 @@
+base-dir = "/var/lib/restate"
+# Unikraft instances are limited to 31 threads
+rocksdb-high-priority-bg-threads = 1
+storage-high-priority-bg-threads = 1
+storage-low-priority-bg-threads = 1
+default-thread-pool-size = 1
+rocksdb-bg-threads = 1
+bootstrap-num-partitions = 1
+
 [worker.invoker.retry-policy]
 initial-interval = "100ms"
 max-attempts = 5
 
 [[ingress.kafka-clusters]]
 name = "default"
-brokers = ["PLAINTEXT://<host>:9092"]
+brokers = ["PLAINTEXT://ftgo-redpanda.internal:9092"]

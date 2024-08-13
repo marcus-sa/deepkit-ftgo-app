@@ -2,12 +2,33 @@
   "name": "@ftgo/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
   "private": true,
   "type": "module",
+  "scripts": {
+    "postinstall": "deepkit-type-install"
+  },
+  "dependencies": {
+    "@deepkit/app": "^1.0.1-alpha.153",
+    "@deepkit/broker": "^1.0.1-alpha.153",
+    "@deepkit/bson": "^1.0.1-alpha.153",
+    "@deepkit/core": "^1.0.1-alpha.147",
+    "@deepkit/event": "^1.0.1-alpha.153",
+    "@deepkit/filesystem": "^1.0.1-alpha.147",
+    "@deepkit/framework": "^1.0.1-alpha.153",
+    "@deepkit/http": "^1.0.1-alpha.153",
+    "@deepkit/injector": "^1.0.1-alpha.153",
+    "@deepkit/orm": "^1.0.1-alpha.153",
+    "@deepkit/postgres": "^1.0.1-alpha.153",
+    "@deepkit/sql": "^1.0.1-alpha.153",
+    "@deepkit/type": "^1.0.1-alpha.153",
+    "deepkit-restate": "^0.0.37",
+    "kafkajs": "2.2.4",
+    "tslib": "2.6.3"
+  },
   "devDependencies": {
     "@deepkit/type-compiler": "^1.0.1-alpha.150",
     "@deepkit/vite": "^1.0.1-alpha.150",
+    "@nx-tools/nx-container": "^6.0.1",
     "@nx/eslint": "19.5.7",
     "@nx/eslint-plugin": "19.5.7",
     "@nx/js": "19.5.7",
@@ -30,35 +51,15 @@
     "prettier": "^3.3.3",
     "typescript": "^5.5.4",
     "vite": "^5.4.0",
-    "vitest": "^2.0.5"
+    "vitest": "^2.0.5",
+    "zx": "^8.1.4"
   },
   "patchedDependencies": {
     "typescript@5.5.4": "patches/typescript@5.5.4.patch"
   },
-  "dependencies": {
-    "@deepkit/app": "^1.0.1-alpha.153",
-    "@deepkit/broker": "^1.0.1-alpha.153",
-    "@deepkit/bson": "^1.0.1-alpha.153",
-    "@deepkit/core": "^1.0.1-alpha.147",
-    "@deepkit/event": "^1.0.1-alpha.153",
-    "@deepkit/filesystem": "^1.0.1-alpha.147",
-    "@deepkit/framework": "^1.0.1-alpha.153",
-    "@deepkit/http": "^1.0.1-alpha.153",
-    "@deepkit/injector": "^1.0.1-alpha.153",
-    "@deepkit/orm": "^1.0.1-alpha.153",
-    "@deepkit/postgres": "^1.0.1-alpha.153",
-    "@deepkit/sql": "^1.0.1-alpha.153",
-    "@deepkit/type": "^1.0.1-alpha.153",
-    "deepkit-restate": "^0.0.37",
-    "kafkajs": "2.2.4",
-    "tslib": "2.6.3"
-  },
+  "trustedDependencies": ["nx"],
   "engines": {
     "node": "22.6.0",
     "bun": "1.1.22"
-  },
-  "trustedDependencies": [
-    "@deepkit/type-compiler",
-    "nx"
-  ]
+  }
 }
