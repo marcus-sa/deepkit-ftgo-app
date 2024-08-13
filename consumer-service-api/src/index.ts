@@ -1,3 +1,3 @@
-export * from './lib/entities.js';
-export * from './lib/service.js';
-export * from './lib/topics.js';
+export * from './lib/entities';
+export * from './lib/service';
+export * from './lib/topics';

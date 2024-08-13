@@ -1,7 +1,6 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "strictPropertyInitialization": false,
     "types": ["vite/client"]
   },
   "files": [],

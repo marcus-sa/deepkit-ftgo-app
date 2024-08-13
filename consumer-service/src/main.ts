@@ -6,9 +6,9 @@ import { RestateModule } from 'deepkit-restate';
 import { provideDatabase } from '@ftgo/common';
 import { Consumer } from '@ftgo/consumer-service-api';
 
-import { ConsumerServiceConfig } from './config.js';
-import { ConsumerService } from './consumer.service.js';
-import { ConsumerRepository } from './consumer.repository.js';
+import { ConsumerServiceConfig } from './config';
+import { ConsumerService } from './consumer.service';
+import { ConsumerRepository } from './consumer.repository';
 
 void new App({
   config: ConsumerServiceConfig,

@@ -9,7 +9,7 @@ import {
   RestaurantServiceHandlers,
 } from '@ftgo/restaurant-service-api';
 
-import { RestaurantRepository } from './restaurant.repository.js';
+import { RestaurantRepository } from './restaurant.repository';
 
 @restate.service<RestaurantServiceApi>()
 export class RestaurantService implements RestaurantServiceHandlers {

@@ -4,8 +4,8 @@ import { RestateModule } from 'deepkit-restate';
 
 import { provideDatabase } from '@ftgo/common';
 
-import { OrderHistoryServiceConfig } from './config.js';
-import { OrderHistoryController } from './order-history.controller.js';
+import { OrderHistoryServiceConfig } from './config';
+import { OrderHistoryController } from './order-history.controller';
 
 void new App({
   config: OrderHistoryServiceConfig,

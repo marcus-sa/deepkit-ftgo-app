@@ -1,6 +1,6 @@
 import { RestateKafkaTopic } from 'deepkit-restate';
 
-import { Restaurant, RestaurantMenu } from './entities.js';
+import { Restaurant, RestaurantMenu } from './entities';
 
 export type KafkaRestaurantCreatedTopic = RestateKafkaTopic<
   'restaurant-created',

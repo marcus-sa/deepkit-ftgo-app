@@ -5,9 +5,9 @@ import { RestateModule } from 'deepkit-restate';
 import { provideDatabase } from '@ftgo/common';
 import { Delivery } from '@ftgo/delivery-service-api';
 
-import { DeliveryServiceConfig } from './config.js';
-import { DeliveryRepository } from './delivery.repository.js';
-import { DeliveryService } from './delivery.service.js';
+import { DeliveryServiceConfig } from './config';
+import { DeliveryRepository } from './delivery.repository';
+import { DeliveryService } from './delivery.service';
 
 void new App({
   config: DeliveryServiceConfig,

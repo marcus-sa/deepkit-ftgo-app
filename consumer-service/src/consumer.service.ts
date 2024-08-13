@@ -10,7 +10,7 @@ import {
   KafkaConsumerTopic,
 } from '@ftgo/consumer-service-api';
 
-import { ConsumerRepository } from './consumer.repository.js';
+import { ConsumerRepository } from './consumer.repository';
 
 @restate.service<ConsumerServiceApi>()
 export class ConsumerService implements ConsumerServiceHandlers {

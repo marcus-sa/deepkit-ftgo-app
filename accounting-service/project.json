@@ -45,6 +45,10 @@
         }
       }
     },
+    "deploy": {
+      "dependsOn": ["build"],
+      "command": "node scripts/deploy-kraft-service.mjs accounting-service {projectRoot}"
+    },
     "container": {
       "executor": "@nx-tools/nx-container:build",
       "dependsOn": ["build"],
@@ -54,7 +58,7 @@
         "cache-from": ["type=gha"],
         "cache-to": ["type=gha,mode=max"],
         "metadata": {
-          "images": ["ghcr.io/zapxme/accounting-service"],
+          "images": ["ghcr.io/ftgo/accounting-service"],
           "tags": [
             "type=schedule",
             "type=ref,event=branch",

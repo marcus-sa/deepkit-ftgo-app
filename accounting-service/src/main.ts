@@ -5,9 +5,9 @@ import { RestateModule } from 'deepkit-restate';
 import { provideDatabase } from '@ftgo/common';
 import { Account } from '@ftgo/accounting-service-api';
 
-import { AccountingServiceConfig } from './config.js';
-import { AccountingService } from './accounting.service.js';
-import { AccountRepository } from './account.repository.js';
+import { AccountingServiceConfig } from './config';
+import { AccountingService } from './accounting.service';
+import { AccountRepository } from './account.repository';
 
 void new App({
   config: AccountingServiceConfig,

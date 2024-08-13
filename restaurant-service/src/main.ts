@@ -9,9 +9,9 @@ import {
 } from '@ftgo/restaurant-service-api';
 import { provideDatabase } from '@ftgo/common';
 
-import { RestaurantServiceConfig } from './config.js';
-import { RestaurantService } from './restaurant.service.js';
-import { RestaurantRepository } from './restaurant.repository.js';
+import { RestaurantServiceConfig } from './config';
+import { RestaurantService } from './restaurant.service';
+import { RestaurantRepository } from './restaurant.repository';
 
 void new App({
   config: RestaurantServiceConfig,

@@ -3,7 +3,7 @@ import { PostgresDatabaseAdapter } from '@deepkit/postgres';
 import { ClassType } from '@deepkit/core';
 import { FactoryProvider } from '@deepkit/injector';
 
-import { DatabaseConfig } from './config.js';
+import { DatabaseConfig } from './config';
 
 export class Database extends OrmDatabase {
   constructor(

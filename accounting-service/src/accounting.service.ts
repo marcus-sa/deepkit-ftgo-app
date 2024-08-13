@@ -6,7 +6,7 @@ import {
   AccountingServiceHandlers,
 } from '@ftgo/accounting-service-api';
 
-import { AccountRepository } from './account.repository.js';
+import { AccountRepository } from './account.repository';
 
 @restate.service<AccountingServiceApi>()
 export class AccountingService implements AccountingServiceHandlers {
