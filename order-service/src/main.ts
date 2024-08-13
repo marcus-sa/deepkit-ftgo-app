@@ -5,10 +5,10 @@ import { RestateModule } from 'deepkit-restate';
 import { Order } from '@ftgo/order-service-api';
 import { provideDatabase } from '@ftgo/common';
 
-import { OrderServiceConfig } from './config';
-import { OrderController } from './order.controller';
-import { OrderService } from './order.service';
-import { OrderRepository } from './order.repository';
+import { OrderServiceConfig } from './config.js';
+import { OrderController } from './order.controller.js';
+import { OrderService } from './order.service.js';
+import { OrderRepository } from './order.repository.js';
 
 void new App({
   config: OrderServiceConfig,

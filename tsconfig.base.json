@@ -4,7 +4,7 @@
     "rootDir": ".",
     "sourceMap": true,
     "declaration": false,
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "strictPropertyInitialization": false,
     "emitDecoratorMetadata": true,
     "useDefineForClassFields": false,
@@ -19,39 +19,20 @@
     "experimentalDecorators": true,
     "importHelpers": true,
     "target": "esnext",
-    "module": "esnext",
-    "lib": [
-      "esnext",
-      "dom"
-    ],
+    "module": "nodenext",
+    "lib": ["esnext", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "paths": {
-      "@ftgo/accounting-service-api": [
-        "accounting-service-api/src/index.ts"
-      ],
-      "@ftgo/consumer-service-api": [
-        "consumer-service-api/src/index.ts"
-      ],
-      "@ftgo/delivery-service-api": [
-        "delivery-service-api/src/index.ts"
-      ],
-      "@ftgo/kitchen-service-api": [
-        "kitchen-service-api/src/index.ts"
-      ],
-      "@ftgo/order-service-api": [
-        "order-service-api/src/index.ts"
-      ],
-      "@ftgo/restaurant-service-api": [
-        "restaurant-service-api/src/index.ts"
-      ],
-      "@ftgo/common": [
-        "common/src/index.ts"
-      ]
+      "@ftgo/accounting-service-api": ["accounting-service-api/src/index.ts"],
+      "@ftgo/common": ["common/src/index.ts"],
+      "@ftgo/consumer-service-api": ["consumer-service-api/src/index.ts"],
+      "@ftgo/delivery-service-api": ["delivery-service-api/src/index.ts"],
+      "@ftgo/kitchen-service-api": ["kitchen-service-api/src/index.ts"],
+      "@ftgo/order-service-api": ["order-service-api/src/index.ts"],
+      "@ftgo/restaurant-service-api": ["restaurant-service-api/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

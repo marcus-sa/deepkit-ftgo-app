@@ -10,13 +10,9 @@
       "executor": "@nx/vite:build",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "development",
-      "inputs": ["kitchen-service"],
       "options": {
-        "buildLibsFromSource": false,
-        "generatePackageJson": true,
         "outputPath": "dist/kitchen-service",
         "ssr": "src/main.ts",
-        "emptyOutDir": true,
         "outputFileName": "main.mjs"
       },
       "configurations": {

@@ -3,16 +3,16 @@ import { FrameworkModule } from '@deepkit/framework';
 import { RestateKafkaProducerModule } from 'deepkit-restate/kafka';
 import { RestateModule } from 'deepkit-restate';
 
+import { provideDatabase } from '@ftgo/common';
 import {
   Account,
   provideAccountingServiceApi,
 } from '@ftgo/accounting-service-api';
 
-import { ConsumerServiceConfig } from './config';
-import { provideDatabase } from '@ftgo/common';
-import { ConsumerController } from './consumer.controller';
-import { ConsumerService } from './consumer.service';
-import { ConsumerRepository } from './consumer.repository';
+import { ConsumerServiceConfig } from './config.js';
+import { ConsumerController } from './consumer.controller.js';
+import { ConsumerService } from './consumer.service.js';
+import { ConsumerRepository } from './consumer.repository.js';
 
 void new App({
   config: ConsumerServiceConfig,

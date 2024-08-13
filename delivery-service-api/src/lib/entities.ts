@@ -1,4 +1,4 @@
-import {entity, JSONEntity} from "@deepkit/type";
+import { entity, JSONEntity } from '@deepkit/type';
 
 @entity.name('delivery')
 export class Delivery {
@@ -6,4 +6,3 @@ export class Delivery {
     return new Delivery();
   }
 }
-

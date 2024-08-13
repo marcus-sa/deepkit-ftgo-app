@@ -1,6 +1,14 @@
-import {Embedded, entity, JSONEntity, PrimaryKey, uuid, UUID} from '@deepkit/type';
+import {
+  Embedded,
+  entity,
+  JSONEntity,
+  JSONPartial,
+  PrimaryKey,
+  uuid,
+  UUID,
+} from '@deepkit/type';
 
-import {Address, Money} from "@ftgo/common";
+import { Address, Money } from '@ftgo/common';
 
 @entity.name('restaurant')
 export class Restaurant {
@@ -9,7 +17,7 @@ export class Restaurant {
   readonly address: Address;
   readonly menu: Embedded<RestaurantMenu>;
 
-  static create(data: JSONEntity<Restaurant>): Restaurant {
+  static create(data: JSONPartial<Restaurant>): Restaurant {
     return Object.assign(new Restaurant(), data);
   }
 }
@@ -22,6 +30,8 @@ export interface RestaurantMenu {
 export class MenuItem {
   readonly id: UUID & PrimaryKey = uuid();
 
-  constructor(readonly name: string, readonly price: Money) {
-  }
+  constructor(
+    readonly name: string,
+    readonly price: Money,
+  ) {}
 }

@@ -1,8 +1,8 @@
 import { UUID } from '@deepkit/type';
 
-import {Address} from "@ftgo/common";
+import { Address } from '@ftgo/common';
 
-import {RestaurantMenu} from './entities';
+import { RestaurantMenu } from './entities.js';
 
 export interface CreateRestaurantRequest {
   readonly name: string;

@@ -19,7 +19,7 @@
       "executor": "@nx/vite:test",
       "outputs": ["{options.reportsDirectory}"],
       "options": {
-        "reportsDirectory": "../coverage/common"
+        "reportsDirectory": "../../coverage/common"
       }
     }
   }

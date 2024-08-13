@@ -25,14 +25,20 @@ export function defineNodeConfig({
 
     return {
       root,
+      cacheDir: `${workspaceRoot}/node_modules/.vite/${projectPathFromWorkspaceRoot}`,
       build: {
         minify: mode === 'production',
+        outDir: `${workspaceRoot}/dist/${projectPathFromWorkspaceRoot}`,
+        emptyOutDir: true,
         rollupOptions: {
           preserveEntrySignatures: 'strict',
           output: {
             esModule: true,
             entryFileNames: `[name].mjs`,
           },
+        },
+        commonjsOptions: {
+          transformMixedEsModules: true,
         },
       },
       resolve: {
@@ -45,7 +51,7 @@ export function defineNodeConfig({
             sourceMap: true,
           },
         }),
-        nxViteTsPaths({ debug }),
+        nxViteTsPaths({ debug, buildLibsFromSource: false }),
         ...(plugins || []),
       ],
       test: {
@@ -53,7 +59,7 @@ export function defineNodeConfig({
         passWithNoTests: true,
         environment: 'node',
         include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-        reporters: ['default', 'hanging-process'],
+        reporters: ['default'],
         coverage: {
           reportsDirectory: join(
             workspaceRoot,

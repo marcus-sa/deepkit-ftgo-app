@@ -1,4 +1,4 @@
-import { Repository } from '@ftgo/common';
+import { RestateRepository } from '@ftgo/common';
 import { Delivery } from '@ftgo/delivery-service-api';
 
-export class DeliveryRepository extends Repository(Delivery) {}
+export class DeliveryRepository extends RestateRepository(Delivery) {}

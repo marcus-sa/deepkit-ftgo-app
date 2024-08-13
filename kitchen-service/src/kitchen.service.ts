@@ -14,8 +14,6 @@ import {
 
 @restate.service<KitchenServiceApi>()
 export class KitchenService implements KitchenServiceHandlers {
-  constructor(private readonly ctx: RestateServiceContext) {}
-
   // @ts-ignore
   @(restate.kafka<KafkaRestaurantCreatedTopic>().handler())
   async createMenu(restaurant: Restaurant): Promise<void> {}

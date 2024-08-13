@@ -1,7 +1,7 @@
-import {float} from "@deepkit/type";
+import { float } from '@deepkit/type';
 
 export class Money {
-  static ZERO = new Money(0)
+  static ZERO = new Money(0);
 
   constructor(readonly amount: float) {}
 

@@ -1,4 +1,4 @@
-import { restate, RestateServiceContext } from 'deepkit-restate';
+import { restate } from 'deepkit-restate';
 import { RestateKafkaProducer } from 'deepkit-restate/kafka';
 
 import {
@@ -9,21 +9,19 @@ import {
   RestaurantServiceHandlers,
 } from '@ftgo/restaurant-service-api';
 
-import { RestaurantRepository } from './restaurant.repository';
+import { RestaurantRepository } from './restaurant.repository.js';
 
 @restate.service<RestaurantServiceApi>()
 export class RestaurantService implements RestaurantServiceHandlers {
   constructor(
-    private readonly ctx: RestateServiceContext,
     private readonly restaurant: RestaurantRepository,
     private readonly kafka: RestateKafkaProducer,
   ) {}
 
   @restate.handler()
   async create(request: CreateRestaurantRequest): Promise<Restaurant> {
-    const restaurant = await this.ctx.run<Restaurant>(() =>
-      this.restaurant.create(request),
-    );
+    // FIXME: why is type T and not Restaurant ?
+    const restaurant = (await this.restaurant.create(request)) as Restaurant;
     await this.kafka.produce<KafkaRestaurantCreatedTopic>([restaurant]);
     return restaurant;
   }

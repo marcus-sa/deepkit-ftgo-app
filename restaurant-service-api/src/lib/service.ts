@@ -2,8 +2,8 @@ import { RestateClient, RestateService } from 'deepkit-restate';
 import { typeOf, UUID } from '@deepkit/type';
 import { FactoryProvider } from '@deepkit/injector';
 
-import { Restaurant } from './entities';
-import { CreateRestaurantRequest } from './dtos';
+import { Restaurant } from './entities.js';
+import { CreateRestaurantRequest } from './dtos.js';
 
 export interface RestaurantServiceHandlers {
   create(request: CreateRestaurantRequest): Promise<Restaurant>;

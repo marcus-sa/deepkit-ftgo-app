@@ -6,6 +6,4 @@ import {
 } from '@ftgo/delivery-service-api';
 
 @restate.service<DeliveryServiceApi>()
-export class DeliveryService implements DeliveryServiceHandlers {
-  constructor(private readonly ctx: RestateServiceContext) {}
-}
+export class DeliveryService implements DeliveryServiceHandlers {}

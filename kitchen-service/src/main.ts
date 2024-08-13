@@ -4,10 +4,10 @@ import { RestateModule } from 'deepkit-restate';
 
 import { provideDatabase } from '@ftgo/common';
 
-import { KitchenServiceConfig } from './config';
-import { KitchenRepository } from './kitchen.repository';
-import { KitchenController } from './kitchen.controller';
-import { KitchenService } from './kitchen.service';
+import { KitchenServiceConfig } from './config.js';
+import { KitchenRepository } from './kitchen.repository.js';
+import { KitchenController } from './kitchen.controller.js';
+import { KitchenService } from './kitchen.service.js';
 
 void new App({
   config: KitchenServiceConfig,
