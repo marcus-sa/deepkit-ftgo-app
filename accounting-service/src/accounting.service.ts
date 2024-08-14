@@ -1,10 +1,9 @@
-import { restate, RestateServiceContext } from 'deepkit-restate';
+import { restate } from 'deepkit-restate';
 import { UUID } from '@deepkit/type';
 
-import { Consumer, KafkaConsumerTopic } from '@ftgo/consumer-service-api';
+import { Consumer } from '@ftgo/consumer-service-api';
 import { Money } from '@ftgo/common';
 import {
-  Account,
   AccountingServiceApi,
   AccountingServiceHandlers,
 } from '@ftgo/accounting-service-api';
@@ -15,10 +14,9 @@ import { AccountRepository } from './account.repository';
 export class AccountingService implements AccountingServiceHandlers {
   constructor(private readonly account: AccountRepository) {}
 
-  // @ts-ignore
-  @(restate.kafka<KafkaConsumerTopic>().handler())
-  async createAccount(consumer: Consumer): Promise<void> {
-    await this.account.create(consumer.id);
+  @restate.handler()
+  async createAccount(consumerId: UUID): Promise<void> {
+    await this.account.create(consumerId);
   }
 
   @restate.handler()
@@ -27,4 +25,13 @@ export class AccountingService implements AccountingServiceHandlers {
     orderId: UUID,
     orderTotal: Money,
   ): Promise<unknown> {}
+
+  @restate.handler()
+  async reverseAuthorization(
+    consumerId: UUID,
+    orderId: UUID,
+    orderTotal: Money,
+  ): Promise<unknown> {
+    return Promise.resolve(undefined);
+  }
 }

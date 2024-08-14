@@ -1,9 +1,0 @@
-spec: v0.6
-
-name: redpanda
-
-runtime: base-compat:latest
-
-rootfs: ./Dockerfile
-
-cmd: ["/usr/bin/redpanda"]

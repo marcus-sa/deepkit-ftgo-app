@@ -1,12 +1,7 @@
 import { restate } from 'deepkit-restate';
 import { UUID } from '@deepkit/type';
 
-import {
-  KafkaRestaurantCreatedTopic,
-  KafkaRestaurantMenuRevisedTopic,
-  Restaurant,
-  RestaurantMenu,
-} from '@ftgo/restaurant-service-api';
+import { Restaurant, RestaurantMenu } from '@ftgo/restaurant-service-api';
 import {
   CreateOrderRequest,
   Order,
@@ -20,42 +15,54 @@ import { OrderRepository } from './order.repository';
 export class OrderService implements OrderServiceHandlers {
   constructor(private readonly order: OrderRepository) {}
 
-  // @ts-ignore
-  @(restate.kafka<KafkaRestaurantCreatedTopic>().handler())
+  @restate.handler()
   async createMenu(restaurant: Restaurant): Promise<void> {}
 
-  // @ts-ignore
-  @(restate.kafka<KafkaRestaurantMenuRevisedTopic>().handler())
-  async reviseMenu(menu: RestaurantMenu): Promise<void> {}
-
   @restate.handler()
-  async create(request: CreateOrderRequest) {}
+  async reviseMenu(menu: RestaurantMenu): Promise<void> {}
 
   @restate.handler()
   async cancel(id: UUID): Promise<Order> {}
 
   @restate.handler()
   async get(id: UUID): Promise<Order> {
-    return await this.order.find({ id });
+    return (await this.order.find({ id })) as Order;
   }
 
+  @restate.handler()
   async approve(id: UUID): Promise<Order> {
     return Promise.resolve(undefined);
   }
 
+  @restate.handler()
   async reject(id: UUID): Promise<Order> {
     return Promise.resolve(undefined);
   }
 
   @restate.handler()
   async beginCancel(id: UUID): Promise<Order> {
-    const order = await this.order.find({ id });
+    const order = (await this.order.find({ id })) as Order;
     order.cancel();
     await this.order.persist(order);
     return order;
   }
 
-  undoCancel(id: UUID): Promise<Order> {
+  @restate.handler()
+  async undoCancel(id: UUID): Promise<Order> {
+    return Promise.resolve(undefined);
+  }
+
+  @restate.handler()
+  async confirmCancel(id: UUID): Promise<Order> {
+    return Promise.resolve(undefined);
+  }
+
+  @restate.handler()
+  async undoBeginCancel(id: UUID): Promise<Order> {
+    return Promise.resolve(undefined);
+  }
+
+  create(request: CreateOrderRequest): Promise<Order> {
     return Promise.resolve(undefined);
   }
 }

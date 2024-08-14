@@ -1,10 +1,11 @@
 import { App } from '@deepkit/app';
 import { FrameworkModule } from '@deepkit/framework';
 import { RestateKafkaProducerModule } from 'deepkit-restate/kafka';
-import { RestateModule } from 'deepkit-restate';
+import { provideRestateServiceProxy, RestateModule } from 'deepkit-restate';
 
-import { provideDatabase } from '@ftgo/common';
+import { AccountingServiceApi } from '@ftgo/accounting-service-api';
 import { Consumer } from '@ftgo/consumer-service-api';
+import { provideDatabase } from '@ftgo/common';
 
 import { ConsumerServiceConfig } from './config';
 import { ConsumerService } from './consumer.service';
@@ -22,7 +23,11 @@ void new App({
     }),
   ],
   controllers: [ConsumerService],
-  providers: [provideDatabase([Consumer]), ConsumerRepository],
+  providers: [
+    provideDatabase([Consumer]),
+    ConsumerRepository,
+    provideRestateServiceProxy<AccountingServiceApi>(),
+  ],
 })
   .setup((module, config: ConsumerServiceConfig) => {
     module

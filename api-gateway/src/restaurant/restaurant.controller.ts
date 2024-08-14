@@ -10,8 +10,8 @@ import {
 @http.controller('restaurant')
 export class RestaurantController {
   constructor(
-    private readonly service: RestaurantServiceApi,
     private readonly client: RestateClient,
+    private readonly service: RestaurantServiceApi,
   ) {}
 
   @http.POST('create')

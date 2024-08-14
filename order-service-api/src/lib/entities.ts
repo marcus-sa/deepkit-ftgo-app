@@ -1,3 +1,5 @@
+import { ItemNotFound } from '@deepkit/orm';
+import { Writable } from 'type-fest';
 import {
   Embedded,
   entity,
@@ -8,7 +10,6 @@ import {
   PrimaryKey,
   UUID,
 } from '@deepkit/type';
-import { Writable } from 'type-fest';
 
 import {
   Address,
@@ -150,7 +151,13 @@ export class OrderLineItems {
   changeToOrderTotal(orderRevision: OrderRevision) {}
 
   find(menuItemId: UUID): OrderLineItem {
-    return this.lineItems.find(lineItem => lineItem.menuItemId === menuItemId);
+    const item = this.lineItems.find(
+      lineItem => lineItem.menuItemId === menuItemId,
+    );
+    if (!item) {
+      throw new ItemNotFound(menuItemId);
+    }
+    return item;
   }
 
   updateLineItems(orderRevision: OrderRevision) {}

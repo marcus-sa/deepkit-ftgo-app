@@ -1,5 +1,6 @@
 import { restate, Saga } from 'deepkit-restate';
 import { cast, UUID } from '@deepkit/type';
+import { Writable } from 'type-fest';
 
 import { ConsumerServiceApi } from '@ftgo/consumer-service-api';
 import { AccountingServiceApi } from '@ftgo/accounting-service-api';
@@ -60,8 +61,8 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     return this.kitchen.createTicket(restaurantId, orderId, details);
   }
 
-  handleTicketCreated(data: CreateOrderSagaData, ticket: Ticket) {
-    Object.assign(data, { ticketId: ticket.id });
+  handleTicketCreated(data: Writable<CreateOrderSagaData>, ticket: Ticket) {
+    data.ticketId = ticket.id;
   }
 
   cancelTicket({ orderId }: CreateOrderSagaData) {

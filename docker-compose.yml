@@ -15,16 +15,6 @@ services:
     volumes:
       - postgres:/var/lib/postgresql/data
 
-  redpanda:
-    image: docker.redpanda.com/redpandadata/redpanda:v24.2.2
-    ports:
-      - '8081:8081'
-      - '8082:8082'
-      - '9092:9092'
-      - '19644:9644'
-    volumes:
-      - redpanda:/var/lib/redpanda/data
-
   restate:
     image: docker.io/restatedev/restate:1.0.2
     ports:
