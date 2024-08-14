@@ -15,12 +15,5 @@ void new App({
   controllers: [KitchenService],
   providers: [provideDatabase([Kitchen]), KitchenRepository],
 })
-  .setup((module, config: KitchenServiceConfig) => {
-    module
-      .getImportedModuleByClass(FrameworkModule)
-      .configure(config.framework);
-
-    module.getImportedModuleByClass(RestateModule).configure(config.restate);
-  })
   .loadConfigFromEnv({ prefix: '' })
   .run();

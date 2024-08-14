@@ -14,5 +14,5 @@ export class DatabaseConfig {
 export class ServiceConfig {
   readonly database: DatabaseConfig;
   readonly restate: RestateConfig;
-  readonly framework: FrameworkConfig = new FrameworkConfig();
+  // readonly framework?: FrameworkConfig;
 }

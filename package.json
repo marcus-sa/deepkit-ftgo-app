@@ -22,7 +22,7 @@
     "@deepkit/sql": "^1.0.1-alpha.153",
     "@deepkit/type": "^1.0.1-alpha.153",
     "@restatedev/restate-sdk": "1.2.0",
-    "deepkit-restate": "0.0.44",
+    "deepkit-restate": "0.0.45",
     "kafkajs": "2.2.4",
     "tslib": "2.6.3"
   },

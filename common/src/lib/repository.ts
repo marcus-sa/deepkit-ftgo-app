@@ -1,5 +1,10 @@
 import { ClassType } from '@deepkit/core';
-import {ChangesInterface, DeepPartial, resolveRuntimeType, TypeClass} from '@deepkit/type';
+import {
+  ChangesInterface,
+  DeepPartial,
+  resolveRuntimeType,
+  TypeClass,
+} from '@deepkit/type';
 import { RestateContextStorage, RestateCustomContext } from 'deepkit-restate';
 import {
   DatabaseQueryModel,
@@ -33,9 +38,7 @@ export class RestateRepository<E extends OrmEntity> {
     );
   }
 
-  async find(
-    filter: DatabaseQueryModel<E>['filter'],
-  ): Promise<E | undefined> {
+  async find(filter: DatabaseQueryModel<E>['filter']): Promise<E | undefined> {
     return await this.database
       .query(this.#type.classType)
       .filter(filter)
@@ -51,7 +54,10 @@ export class RestateRepository<E extends OrmEntity> {
     changes: ChangesInterface<E> | DeepPartial<E>,
   ): Promise<PatchResult<E>> {
     return await this.#ctx.run<PatchResult<E>>(() =>
-      this.database.query(this.#type.classType).filter(filter).patchOne(changes),
+      this.database
+        .query(this.#type.classType)
+        .filter(filter)
+        .patchOne(changes),
     );
   }
 

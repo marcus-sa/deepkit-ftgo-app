@@ -9,20 +9,11 @@ import { AccountingServiceConfig } from './config';
 import { AccountingService } from './accounting.service';
 import { AccountRepository } from './account.repository';
 
-const app = new App({
+void new App({
   config: AccountingServiceConfig,
   imports: [new FrameworkModule(), new RestateModule()],
   controllers: [AccountingService],
   providers: [provideDatabase([Account]), AccountRepository],
 })
-  .setup((module, config: AccountingServiceConfig) => {
-    module
-      .getImportedModuleByClass(FrameworkModule)
-      .configure(config.framework);
-
-    module.getImportedModuleByClass(RestateModule).configure(config.restate);
-  })
   .loadConfigFromEnv({ prefix: '' })
-  // .run();
-
-app.get(AccountRepository);
+  .run();

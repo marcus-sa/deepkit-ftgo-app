@@ -16,12 +16,5 @@ void new App({
   controllers: [OrderService, CreateOrderSaga, CancelOrderSaga],
   providers: [provideDatabase([Order]), OrderRepository],
 })
-  .setup((module, config: OrderServiceConfig) => {
-    module
-      .getImportedModuleByClass(FrameworkModule)
-      .configure(config.framework);
-
-    module.getImportedModuleByClass(RestateModule).configure(config.restate);
-  })
   .loadConfigFromEnv({ prefix: '' })
   .run();

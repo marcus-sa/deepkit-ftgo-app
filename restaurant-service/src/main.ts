@@ -3,10 +3,7 @@ import { FrameworkModule } from '@deepkit/framework';
 import { RestateModule } from 'deepkit-restate';
 import { RestateKafkaProducerModule } from 'deepkit-restate/kafka';
 
-import {
-  provideRestaurantServiceApi,
-  Restaurant,
-} from '@ftgo/restaurant-service-api';
+import { Restaurant } from '@ftgo/restaurant-service-api';
 import { provideDatabase } from '@ftgo/common';
 
 import { RestaurantServiceConfig } from './config';
@@ -26,12 +23,5 @@ void new App({
   controllers: [RestaurantService],
   providers: [provideDatabase([Restaurant]), RestaurantRepository],
 })
-  .setup((module, config: RestaurantServiceConfig) => {
-    module
-      .getImportedModuleByClass(FrameworkModule)
-      .configure(config.framework);
-
-    module.getImportedModuleByClass(RestateModule).configure(config.restate);
-  })
   .loadConfigFromEnv({ prefix: '' })
   .run();

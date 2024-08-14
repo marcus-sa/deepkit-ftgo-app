@@ -24,12 +24,5 @@ void new App({
   controllers: [ConsumerService],
   providers: [provideDatabase([Consumer]), ConsumerRepository],
 })
-  .setup((module, config: ConsumerServiceConfig) => {
-    module
-      .getImportedModuleByClass(FrameworkModule)
-      .configure(config.framework);
-
-    module.getImportedModuleByClass(RestateModule).configure(config.restate);
-  })
   .loadConfigFromEnv({ prefix: '' })
   .run();

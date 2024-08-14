@@ -15,12 +15,5 @@ void new App({
   controllers: [DeliveryService],
   providers: [provideDatabase([Delivery]), DeliveryRepository],
 })
-  .setup((module, config: DeliveryServiceConfig) => {
-    module
-      .getImportedModuleByClass(FrameworkModule)
-      .configure(config.framework);
-
-    module.getImportedModuleByClass(RestateModule).configure(config.restate);
-  })
   .loadConfigFromEnv({ prefix: '' })
   .run();
