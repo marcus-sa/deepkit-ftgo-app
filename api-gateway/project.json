@@ -34,7 +34,7 @@
       "configurations": {
         "development": {
           "buildTarget": "api-gateway:build:development",
-          "args": ["api-gateway:start"],
+          "args": ["server:start"],
           "watch": true
         },
         "production": {

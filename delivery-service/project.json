@@ -34,7 +34,7 @@
       "configurations": {
         "development": {
           "buildTarget": "delivery-service:build:development",
-          "args": ["delivery-service:start"],
+          "args": ["server:start"],
           "watch": true
         },
         "production": {

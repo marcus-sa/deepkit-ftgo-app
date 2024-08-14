@@ -34,7 +34,7 @@
       "configurations": {
         "development": {
           "buildTarget": "restate-event-server:build:development",
-          "args": ["restate-event-server:start"],
+          "args": ["server:start"],
           "watch": true
         },
         "production": {

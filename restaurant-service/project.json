@@ -34,7 +34,7 @@
       "configurations": {
         "development": {
           "buildTarget": "restaurant-service:build:development",
-          "args": ["restaurant-service:start"],
+          "args": ["server:start"],
           "watch": true
         },
         "production": {

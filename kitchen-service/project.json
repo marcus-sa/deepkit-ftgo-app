@@ -34,7 +34,7 @@
       "configurations": {
         "development": {
           "buildTarget": "kitchen-service:build:development",
-          "args": ["kitchen-service:start"],
+          "args": ["server:start"],
           "watch": true
         },
         "production": {
