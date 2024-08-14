@@ -9,7 +9,7 @@ import { AccountingServiceConfig } from './config';
 import { AccountingService } from './accounting.service';
 import { AccountRepository } from './account.repository';
 
-void new App({
+const app = new App({
   config: AccountingServiceConfig,
   imports: [new FrameworkModule(), new RestateModule()],
   controllers: [AccountingService],
@@ -23,4 +23,6 @@ void new App({
     module.getImportedModuleByClass(RestateModule).configure(config.restate);
   })
   .loadConfigFromEnv({ prefix: '' })
-  .run();
+  // .run();
+
+app.get(AccountRepository);

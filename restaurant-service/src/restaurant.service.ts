@@ -28,7 +28,7 @@ export class RestaurantService implements RestaurantServiceHandlers {
 
   @restate.handler()
   async create(request: CreateRestaurantRequest): Promise<Restaurant> {
-    const restaurant = (await this.restaurant.create(request)) as Restaurant;
+    const restaurant = await this.restaurant.create(request);
     await this.events.publish([new RestaurantCreatedEvent(restaurant)]);
     return restaurant;
   }

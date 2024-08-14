@@ -34,7 +34,7 @@
       "configurations": {
         "development": {
           "buildTarget": "order-service:build:development",
-          "args": ["order-service:start"],
+          "args": ["server:start"],
           "watch": true
         },
         "production": {

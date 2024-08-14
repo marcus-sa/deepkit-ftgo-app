@@ -12,7 +12,7 @@ export class Account {
 
   assertEnabled(): void {
     if (!this.disabled) {
-      throw new AccountDisabled(this);
+      throw new AccountDisabled(this.id);
     }
   }
 

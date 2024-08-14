@@ -17,7 +17,7 @@ export interface AccountingServiceHandlers {
     consumerId: UUID,
     orderId: UUID,
     orderTotal: Money,
-  ): Promise<unknown>;
+  ): Promise<void>;
   // disable(id: UUID): Promise<Account>;
   // enable(id: UUID): Promise<Account>;
 }

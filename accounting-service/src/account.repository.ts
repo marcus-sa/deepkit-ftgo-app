@@ -4,7 +4,7 @@ import { DatabaseQueryModel } from '@deepkit/orm';
 import { RestateRepository } from '@ftgo/common';
 import { Account, AccountNotFound } from '@ftgo/accounting-service-api';
 
-export class AccountRepository extends RestateRepository(Account) {
+export class AccountRepository extends RestateRepository<Account> {
   async findByConsumer(id: UUID): Promise<Account> {
     return await this.find({ consumerId: id });
   }

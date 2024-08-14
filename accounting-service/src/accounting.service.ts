@@ -37,7 +37,7 @@ export class AccountingService implements AccountingServiceHandlers {
     consumerId: UUID,
     orderId: UUID,
     orderTotal: Money,
-  ): Promise<unknown> {
+  ): Promise<void> {
     const account = await this.account.findByConsumer(consumerId);
     account.assertEnabled();
   }
