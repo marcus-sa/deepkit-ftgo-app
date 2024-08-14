@@ -36,9 +36,18 @@ export function RestateRepository<E extends OrmEntity>(entity: ClassType<E>) {
     //   return await this.database.query(entity).filter(filter).find();
     // }
 
-    async find(filter: DatabaseQueryModel<E>['filter']): Promise<E> {
-      return await this.database.query(entity).filter(filter).findOne();
+    async find(
+      filter: DatabaseQueryModel<E>['filter'],
+    ): Promise<E | undefined> {
+      return await this.database
+        .query(entity)
+        .filter(filter)
+        .findOneOrUndefined();
     }
+
+    // async findOneOrUndefined(filter: DatabaseQueryModel<E>['filter']): Promise<E | undefined> {
+    //   return await this.database.query(entity).filter(filter).findOneOrUndefined();
+    // }
 
     async persist(entity: E): Promise<void> {
       await this.#ctx.run(() => this.database.persist(entity));

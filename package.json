@@ -21,8 +21,8 @@
     "@deepkit/postgres": "^1.0.1-alpha.153",
     "@deepkit/sql": "^1.0.1-alpha.153",
     "@deepkit/type": "^1.0.1-alpha.153",
-    "deepkit-restate": "^0.0.41",
     "@restatedev/restate-sdk": "1.2.0",
+    "deepkit-restate": "0.0.43",
     "kafkajs": "2.2.4",
     "tslib": "2.6.3"
   },

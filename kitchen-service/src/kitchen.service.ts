@@ -1,7 +1,11 @@
 import { restate, RestateServiceContext } from 'deepkit-restate';
 import { UUID } from '@deepkit/type';
 
-import { Restaurant, RestaurantMenu } from '@ftgo/restaurant-service-api';
+import {
+  Restaurant,
+  RestaurantCreatedEvent,
+  RestaurantMenu,
+} from '@ftgo/restaurant-service-api';
 import {
   KitchenServiceApi,
   KitchenServiceHandlers,
@@ -11,11 +15,13 @@ import {
 
 @restate.service<KitchenServiceApi>()
 export class KitchenService implements KitchenServiceHandlers {
-  @restate.handler()
-  async createMenu(restaurant: Restaurant): Promise<void> {}
+  // @ts-ignore
+  @(restate.event<RestaurantCreatedEvent>().handler())
+  async createMenu({ restaurant }: RestaurantCreatedEvent): Promise<void> {}
 
-  @restate.handler()
-  async reviseMenu(menu: RestaurantMenu): Promise<void> {}
+  // @ts-ignore
+  @(restate.event<RestaurantCreatedEvent>().handler())
+  async reviseMenu({ restaurant }: RestaurantCreatedEvent): Promise<void> {}
 
   @restate.handler()
   async beginCancelTicket(restaurantId: UUID, orderId: UUID): Promise<Ticket> {

@@ -12,7 +12,7 @@ export class CreateOrderSagaData {
 }
 
 export type CreateOrderSagaApi = RestateSaga<
-  'create-order',
+  'CreateOrder',
   CreateOrderSagaData
 >;
 
@@ -25,7 +25,7 @@ export class CancelOrderSagaData {
 }
 
 export type CancelOrderSagaApi = RestateSaga<
-  'cancel-order',
+  'CancelOrder',
   CancelOrderSagaData
 >;
 
@@ -39,6 +39,6 @@ export class ReviseOrderSagaData {
 }
 
 export type ReviseOrderSagaApi = RestateSaga<
-  'revise-order',
+  'ReviseOrder',
   ReviseOrderSagaData
 >;

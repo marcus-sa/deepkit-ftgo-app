@@ -1,10 +1,7 @@
 import { App } from '@deepkit/app';
 import { FrameworkModule } from '@deepkit/framework';
-import { provideRestateServiceProxy, RestateModule } from 'deepkit-restate';
+import { RestateModule } from 'deepkit-restate';
 
-import { KitchenServiceApi } from '@ftgo/kitchen-service-api';
-import { ConsumerServiceApi } from '@ftgo/consumer-service-api';
-import { AccountingServiceApi } from '@ftgo/accounting-service-api';
 import { Order } from '@ftgo/order-service-api';
 import { provideDatabase } from '@ftgo/common';
 
@@ -17,13 +14,7 @@ void new App({
   config: OrderServiceConfig,
   imports: [new FrameworkModule(), new RestateModule()],
   controllers: [OrderService, CreateOrderSaga, CancelOrderSaga],
-  providers: [
-    provideDatabase([Order]),
-    OrderRepository,
-    provideRestateServiceProxy<ConsumerServiceApi>(),
-    provideRestateServiceProxy<KitchenServiceApi>(),
-    provideRestateServiceProxy<AccountingServiceApi>(),
-  ],
+  providers: [provideDatabase([Order]), OrderRepository],
 })
   .setup((module, config: OrderServiceConfig) => {
     module
