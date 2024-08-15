@@ -5,10 +5,17 @@ import { Money } from '@ftgo/common';
 
 import { OrderDetails, OrderRevision } from './entities';
 
+export enum CreateOrderSagaState {
+  STARTED = 'STARTED',
+  CANCELLED = 'CANCELLED',
+}
+
 export class CreateOrderSagaData {
+  readonly state: CreateOrderSagaState = CreateOrderSagaState.STARTED;
   readonly orderId: UUID;
   readonly orderDetails: OrderDetails;
   readonly ticketId?: UUID;
+  readonly confirmCreateTicketAwakeableId?: string;
 }
 
 export type CreateOrderSagaApi = RestateSaga<

@@ -33,6 +33,7 @@ export class RestateRepository<E extends OrmEntity> {
   async delete(
     filter: DatabaseQueryModel<E>['filter'],
   ): Promise<DeleteResult<E>> {
+    // TODO: serde
     return await this.#ctx.run<DeleteResult<E>>(() =>
       this.database.query(this.#type.classType).filter(filter).deleteOne(),
     );
@@ -53,6 +54,7 @@ export class RestateRepository<E extends OrmEntity> {
     filter: DatabaseQueryModel<E>['filter'],
     changes: ChangesInterface<E> | DeepPartial<E>,
   ): Promise<PatchResult<E>> {
+    // TODO: serde
     return await this.#ctx.run<PatchResult<E>>(() =>
       this.database
         .query(this.#type.classType)
@@ -62,10 +64,10 @@ export class RestateRepository<E extends OrmEntity> {
   }
 
   async create(...args: ConstructorParameters<ClassType<E>>): Promise<E> {
-    return await this.#ctx.run<E>(async () => {
+    return await this.#ctx.run(async () => {
       const et = new this.#type.classType(...args);
       await this.database.persist(et);
       return et;
-    });
+    }, this.#type);
   }
 }

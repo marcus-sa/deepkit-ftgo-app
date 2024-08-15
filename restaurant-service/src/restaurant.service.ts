@@ -1,11 +1,6 @@
-import {
-  restate,
-  RestateEventPublisher,
-  RestateServiceContext,
-} from 'deepkit-restate';
+import { UUID } from '@deepkit/type';
+import { restate, RestateEventsPublisher } from 'deepkit-restate';
 
-import { KitchenServiceApi } from '@ftgo/kitchen-service-api';
-import { OrderServiceApi } from '@ftgo/order-service-api';
 import {
   CreateRestaurantRequest,
   Restaurant,
@@ -20,10 +15,7 @@ import { RestaurantRepository } from './restaurant.repository';
 export class RestaurantService implements RestaurantServiceHandlers {
   constructor(
     private readonly restaurant: RestaurantRepository,
-    private readonly events: RestateEventPublisher,
-    private readonly kitchen: KitchenServiceApi,
-    private readonly order: OrderServiceApi,
-    private readonly ctx: RestateServiceContext,
+    private readonly events: RestateEventsPublisher,
   ) {}
 
   @restate.handler()

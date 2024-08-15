@@ -1,6 +1,4 @@
-import { RestateClient, RestateService } from 'deepkit-restate';
-import { typeOf, UUID } from '@deepkit/type';
-import { FactoryProvider } from '@deepkit/injector';
+import { RestateService } from 'deepkit-restate';
 
 import { Restaurant } from './entities';
 import { CreateRestaurantRequest } from './dtos';

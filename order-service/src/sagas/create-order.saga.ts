@@ -1,10 +1,16 @@
-import { restate, Saga } from 'deepkit-restate';
+import {
+  restate,
+  RestateAwakeable,
+  RestateSagaContext,
+  Saga,
+} from 'deepkit-restate';
 import { cast, UUID } from '@deepkit/type';
 import { Writable } from 'type-fest';
 
 import { ConsumerServiceApi } from '@ftgo/consumer-service-api';
 import { AccountingServiceApi } from '@ftgo/accounting-service-api';
 import {
+  KitchenConfirmCreateTicket,
   KitchenServiceApi,
   Ticket,
   TicketDetails,
@@ -17,6 +23,8 @@ import {
 
 @restate.saga<CreateOrderSagaApi>()
 export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
+  #confirmTicket?: RestateAwakeable<KitchenConfirmCreateTicket>;
+
   readonly definition = this.step()
     .compensate(this.reject)
     .step()
@@ -28,7 +36,7 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     .step()
     .invoke(this.authorize)
     .step()
-    .invoke(this.confirmCreateTicket)
+    .invoke(this.waitForTicketConfirmation)
     .step()
     .invoke(this.approve)
     .build();
@@ -38,6 +46,7 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     private readonly order: OrderServiceApi,
     private readonly kitchen: KitchenServiceApi,
     private readonly accounting: AccountingServiceApi,
+    private readonly ctx: RestateSagaContext,
   ) {
     super();
   }
@@ -53,20 +62,26 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     return this.consumer.validateOrder(consumerId, orderId, orderTotal);
   }
 
-  createTicket({
+  async createTicket({
     orderDetails: { lineItems, restaurantId },
     orderId,
   }: CreateOrderSagaData) {
     const details = cast<TicketDetails>({ lineItems });
-    return this.kitchen.createTicket(restaurantId, orderId, details);
+    this.#confirmTicket = this.ctx.awakeable<KitchenConfirmCreateTicket>();
+    return this.kitchen.createTicket(
+      restaurantId,
+      orderId,
+      details,
+      this.#confirmTicket!.id,
+    );
   }
 
   handleTicketCreated(data: Writable<CreateOrderSagaData>, ticket: Ticket) {
     data.ticketId = ticket.id;
   }
 
-  cancelTicket({ orderId }: CreateOrderSagaData) {
-    return this.kitchen.cancelTicket(orderId);
+  async cancelTicket({ ticketId }: CreateOrderSagaData) {
+    return this.kitchen.cancelTicket(ticketId!);
   }
 
   authorize({
@@ -76,8 +91,8 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     return this.accounting.authorize(consumerId, orderId, orderTotal);
   }
 
-  confirmCreateTicket({ ticketId }: CreateOrderSagaData) {
-    return this.kitchen.confirmCreateTicket(ticketId!);
+  async waitForTicketConfirmation() {
+    await this.#confirmTicket!.promise;
   }
 
   approve({ orderId }: CreateOrderSagaData) {

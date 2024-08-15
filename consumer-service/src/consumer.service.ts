@@ -1,4 +1,4 @@
-import { restate, RestateEventPublisher } from 'deepkit-restate';
+import { restate, RestateEventsPublisher } from 'deepkit-restate';
 import { UUID } from '@deepkit/type';
 
 import { Money, PersonName } from '@ftgo/common';
@@ -17,7 +17,7 @@ import { ConsumerRepository } from './consumer.repository';
 export class ConsumerService implements ConsumerServiceHandlers {
   constructor(
     private readonly consumer: ConsumerRepository,
-    private readonly events: RestateEventPublisher,
+    private readonly events: RestateEventsPublisher,
   ) {}
 
   @restate.handler()
