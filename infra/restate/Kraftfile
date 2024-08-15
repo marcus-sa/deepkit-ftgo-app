@@ -2,6 +2,11 @@ spec: v0.6
 
 name: restate
 
+labels:
+  cloud.unikraft.v1.instances/scale_to_zero.policy: "idle"
+  cloud.unikraft.v1.instances/scale_to_zero.stateful: "true"
+  cloud.unikraft.v1.instances/scale_to_zero.cooldown_time_ms: 1000
+
 runtime: base:latest
 
 rootfs: ./Dockerfile
