@@ -24,12 +24,5 @@ void new App({
     new RestaurantModule(),
   ],
 })
-  .setup((module, config: ApiGatewayConfig) => {
-    module.getImportedModuleByClass(FrameworkModule).configure(config.server);
-
-    module.getImportedModuleByClass(RestateModule).configure({
-      ingress: config.restate.ingress,
-    });
-  })
   .loadConfigFromEnv({ prefix: '' })
   .run();
