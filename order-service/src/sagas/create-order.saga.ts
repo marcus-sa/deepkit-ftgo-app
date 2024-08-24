@@ -4,34 +4,40 @@ import {
   RestateSagaContext,
   Saga,
 } from 'deepkit-restate';
-import { cast, UUID } from '@deepkit/type';
+import { cast } from '@deepkit/type';
 import { Writable } from 'type-fest';
 
-import { ConsumerServiceApi } from '@ftgo/consumer-service-api';
-import { AccountingServiceApi } from '@ftgo/accounting-service-api';
+import { CustomerServiceApi } from '@ftgo/customer-service-api';
+import { PaymentReserved, PaymentServiceApi } from '@ftgo/payment-service-api';
 import {
-  KitchenConfirmCreateTicket,
   KitchenServiceApi,
   Ticket,
+  TicketConfirmed,
+  TicketCreated,
   TicketDetails,
 } from '@ftgo/kitchen-service-api';
 import {
   CreateOrderSagaApi,
   CreateOrderSagaData,
+  CreateOrderSagaState,
   OrderServiceApi,
 } from '@ftgo/order-service-api';
 
 @restate.saga<CreateOrderSagaApi>()
 export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
-  #confirmTicket?: RestateAwakeable<KitchenConfirmCreateTicket>;
+  #confirmTicketAwakeable?: RestateAwakeable<TicketConfirmed>;
 
   readonly definition = this.step()
     .compensate(this.reject)
     .step()
     .invoke(this.validate)
     .step()
+    .invoke(this.reservePayment)
+    .onReply<PaymentReserved>(this.handlePaymentReserved)
+    .compensate(this.reversePayment)
+    .step()
     .invoke(this.createTicket)
-    .onReply<Ticket>(this.handleTicketCreated)
+    .onReply<TicketCreated>(this.handleTicketCreated)
     .compensate(this.cancelTicket)
     .step()
     .invoke(this.authorize)
@@ -42,10 +48,10 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     .build();
 
   constructor(
-    private readonly consumer: ConsumerServiceApi,
+    private readonly customer: CustomerServiceApi,
     private readonly order: OrderServiceApi,
     private readonly kitchen: KitchenServiceApi,
-    private readonly accounting: AccountingServiceApi,
+    private readonly payment: PaymentServiceApi,
     private readonly ctx: RestateSagaContext,
   ) {
     super();
@@ -56,10 +62,33 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
   }
 
   validate({
-    orderDetails: { consumerId, orderTotal },
+    orderDetails: { customerId, orderTotal },
     orderId,
   }: CreateOrderSagaData) {
-    return this.consumer.validateOrder(consumerId, orderId, orderTotal);
+    // validate that customer can reserve the money
+    return this.customer.validateOrder(customerId, orderId, orderTotal);
+  }
+
+  reservePayment({
+    orderDetails: { customerId, orderTotal },
+    orderId,
+  }: CreateOrderSagaData) {
+    return this.payment.reserve(customerId, orderId, orderTotal);
+  }
+
+  handlePaymentReserved(
+    data: Writable<CreateOrderSagaData>,
+    { paymentId }: PaymentReserved,
+  ) {
+    data.paymentId = paymentId;
+    data.state = CreateOrderSagaState.PAYMENT_RESERVED;
+  }
+
+  reversePayment({ paymentId }: CreateOrderSagaData) {
+    if (!paymentId) {
+      throw new Error('Missing payment id');
+    }
+    return this.payment.reverse(paymentId);
   }
 
   async createTicket({
@@ -67,32 +96,39 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     orderId,
   }: CreateOrderSagaData) {
     const details = cast<TicketDetails>({ lineItems });
-    this.#confirmTicket = this.ctx.awakeable<KitchenConfirmCreateTicket>();
+    this.#confirmTicketAwakeable = this.ctx.awakeable<TicketConfirmed>();
     return this.kitchen.createTicket(
       restaurantId,
       orderId,
       details,
-      this.#confirmTicket!.id,
+      this.#confirmTicketAwakeable!.id,
     );
   }
 
-  handleTicketCreated(data: Writable<CreateOrderSagaData>, ticket: Ticket) {
-    data.ticketId = ticket.id;
+  handleTicketCreated(
+    data: Writable<CreateOrderSagaData>,
+    { ticketId }: TicketCreated,
+  ) {
+    data.ticketId = ticketId;
   }
 
-  async cancelTicket({ ticketId }: CreateOrderSagaData) {
-    return this.kitchen.cancelTicket(ticketId!);
+  cancelTicket({ ticketId }: CreateOrderSagaData) {
+    if (!ticketId) {
+      throw new Error('Missing ticket id');
+    }
+    return this.kitchen.cancelTicket(ticketId);
   }
 
+  // TODO: should payment be processed upon ticket confirmation or after delivery?
   authorize({
-    orderDetails: { consumerId, orderTotal },
+    orderDetails: { customerId, orderTotal },
     orderId,
   }: CreateOrderSagaData) {
-    return this.accounting.authorize(consumerId, orderId, orderTotal);
+    return this.payment.authorize(customerId, orderId, orderTotal);
   }
 
   async waitForTicketConfirmation() {
-    await this.#confirmTicket!.promise;
+    await this.#confirmTicketAwakeable!.promise;
   }
 
   approve({ orderId }: CreateOrderSagaData) {

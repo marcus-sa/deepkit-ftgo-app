@@ -1,0 +1,26 @@
+{
+  "name": "customer-service-api",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "customer-service-api/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/customer-service-api",
+        "main": "customer-service-api/src/index.ts",
+        "tsConfig": "customer-service-api/tsconfig.lib.json",
+        "assets": ["customer-service-api/*.md"]
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../coverage/customer-service-api"
+      }
+    }
+  }
+}

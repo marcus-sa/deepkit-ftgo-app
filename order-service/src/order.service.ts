@@ -5,6 +5,7 @@ import { RestaurantCreatedEvent } from '@ftgo/restaurant-service-api';
 import {
   CreateOrderRequest,
   Order,
+  OrderNotFound,
   OrderServiceApi,
   OrderServiceHandlers,
 } from '@ftgo/order-service-api';
@@ -15,11 +16,9 @@ import { OrderRepository } from './order.repository';
 export class OrderService implements OrderServiceHandlers {
   constructor(private readonly order: OrderRepository) {}
 
-  // @ts-ignore
   @(restate.event<RestaurantCreatedEvent>().handler())
   async createMenu({ restaurant }: RestaurantCreatedEvent): Promise<void> {}
 
-  // @ts-ignore
   @(restate.event<RestaurantCreatedEvent>().handler())
   async reviseMenu({ restaurant }: RestaurantCreatedEvent): Promise<void> {}
 
@@ -28,44 +27,39 @@ export class OrderService implements OrderServiceHandlers {
 
   @restate.handler()
   async get(id: UUID): Promise<Order> {
-    return await this.order.find({ id });
+    const order = await this.order.find({ id });
+    if (!order) {
+      throw new OrderNotFound(id);
+    }
+    return order;
   }
 
   @restate.handler()
-  async approve(id: UUID): Promise<Order> {
-    return Promise.resolve(undefined);
-  }
+  async approve(id: UUID): Promise<Order> {}
 
   @restate.handler()
-  async reject(id: UUID): Promise<Order> {
-    return Promise.resolve(undefined);
-  }
+  async reject(id: UUID): Promise<Order> {}
 
   @restate.handler()
   async beginCancel(id: UUID): Promise<Order> {
     const order = await this.order.find({ id });
+    if (!order) {
+      throw new OrderNotFound(id);
+    }
     order.cancel();
     await this.order.persist(order);
     return order;
   }
 
   @restate.handler()
-  async undoCancel(id: UUID): Promise<Order> {
-    return Promise.resolve(undefined);
-  }
+  async undoCancel(id: UUID): Promise<Order> {}
 
   @restate.handler()
-  async confirmCancel(id: UUID): Promise<Order> {
-    return Promise.resolve(undefined);
-  }
+  async confirmCancel(id: UUID): Promise<Order> {}
 
   @restate.handler()
-  async undoBeginCancel(id: UUID): Promise<Order> {
-    return Promise.resolve(undefined);
-  }
+  async undoBeginCancel(id: UUID): Promise<Order> {}
 
   @restate.handler()
-  create(request: CreateOrderRequest): Promise<Order> {
-    return Promise.resolve(undefined);
-  }
+  async create(request: CreateOrderRequest): Promise<Order> {}
 }

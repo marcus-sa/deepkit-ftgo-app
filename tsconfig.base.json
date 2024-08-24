@@ -26,9 +26,9 @@
     "baseUrl": ".",
     "types": ["node"],
     "paths": {
-      "@ftgo/accounting-service-api": ["accounting-service-api/src/index.ts"],
+      "@ftgo/payment-service-api": ["payment-service-api/src/index.ts"],
       "@ftgo/common": ["common/src/index.ts"],
-      "@ftgo/consumer-service-api": ["consumer-service-api/src/index.ts"],
+      "@ftgo/customer-service-api": ["customer-service-api/src/index.ts"],
       "@ftgo/delivery-service-api": ["delivery-service-api/src/index.ts"],
       "@ftgo/kitchen-service-api": ["kitchen-service-api/src/index.ts"],
       "@ftgo/order-service-api": ["order-service-api/src/index.ts"],

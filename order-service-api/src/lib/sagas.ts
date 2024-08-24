@@ -7,6 +7,8 @@ import { OrderDetails, OrderRevision } from './entities';
 
 export enum CreateOrderSagaState {
   STARTED = 'STARTED',
+  CUSTOMER_VALIDATED = 'CUSTOMER_VALIDATED',
+  PAYMENT_RESERVED = 'PAYMENT_RESERVED',
   CANCELLED = 'CANCELLED',
 }
 
@@ -14,8 +16,8 @@ export class CreateOrderSagaData {
   readonly state: CreateOrderSagaState = CreateOrderSagaState.STARTED;
   readonly orderId: UUID;
   readonly orderDetails: OrderDetails;
+  readonly paymentId?: UUID;
   readonly ticketId?: UUID;
-  readonly confirmCreateTicketAwakeableId?: string;
 }
 
 export type CreateOrderSagaApi = RestateSaga<
@@ -27,7 +29,7 @@ export class CancelOrderSagaData {
   readonly orderId: UUID;
   readonly reverseRequestId: UUID;
   readonly restaurantId: UUID;
-  readonly consumerId: UUID;
+  readonly customerId: UUID;
   readonly orderTotal: Money;
 }
 
@@ -42,7 +44,7 @@ export class ReviseOrderSagaData {
   readonly expectedVersion: UUID;
   readonly restaurantId: UUID;
   readonly revisedOrderTotal: Money;
-  readonly consumerId: UUID;
+  readonly customerId: UUID;
 }
 
 export type ReviseOrderSagaApi = RestateSaga<

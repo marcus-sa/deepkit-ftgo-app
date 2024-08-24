@@ -1,0 +1,104 @@
+{
+  "name": "payment-service",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "ftgo",
+  "sourceRoot": "payment-service/src",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "development",
+      "options": {
+        "outputPath": "dist/payment-service",
+        "ssr": "src/main.ts",
+        "outputFileName": "main.mjs"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "payment-service:build",
+        "watch": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "payment-service:build:development",
+          "args": ["server:start"],
+          "watch": true
+        },
+        "production": {
+          "buildTarget": "payment-service:build:production"
+        },
+        "staging": {
+          "buildTarget": "payment-service:build:staging"
+        }
+      }
+    },
+    "deploy": {
+      "dependsOn": ["build"],
+      "command": "node scripts/deploy-kraft-service.mjs payment-service {projectRoot}"
+    },
+    "container": {
+      "executor": "@nx-tools/nx-container:build",
+      "dependsOn": ["build"],
+      "options": {
+        "engine": "docker",
+        "push": true,
+        "cache-from": ["type=gha"],
+        "cache-to": ["type=gha,mode=max"],
+        "metadata": {
+          "images": ["ghcr.io/ftgo/payment-service"],
+          "tags": [
+            "type=schedule",
+            "type=ref,event=branch",
+            "type=ref,event=tag",
+            "type=ref,event=pr",
+            "type=sha,prefix=sha-"
+          ]
+        }
+      }
+    },
+    "create-migration": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "payment-service:build",
+        "args": [
+          "migration:create",
+          "--migrationDir",
+          "payment-service/src/migrations"
+        ],
+        "watch": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "payment-service:build:development"
+        },
+        "production": {
+          "buildTarget": "payment-service:build:production"
+        },
+        "staging": {
+          "buildTarget": "payment-service:build:staging"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{projectRoot}/coverage"]
+    }
+  }
+}

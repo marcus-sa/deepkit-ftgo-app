@@ -39,26 +39,13 @@ export class Order {
   readonly paymentInformation?: Embedded<PaymentInformation>;
   readonly orderMinimum: Embedded<Money> = new Money(Number.MAX_SAFE_INTEGER);
 
-  readonly consumerId: UUID;
+  readonly customerId: UUID;
   readonly restaurantId: UUID;
   readonly deliveryInformation: Embedded<DeliveryInformation>;
   readonly lineItems: OrderLineItems;
 
-  // constructor(
-  //   readonly consumerId: UUID,
-  //   readonly restaurantId: UUID,
-  //   readonly deliveryInformation: Embedded<DeliveryInformation>,
-  //   readonly lineItems: OrderLineItems,
-  // ) {}
-
   static create(data: JSONPartial<Order>): Order {
     return Object.assign(new Order(), data);
-    // return new Order(
-    //   data.consumerId,
-    //   data.restaurantId,
-    //   data.deliveryInformation,
-    //   data.lineItems,
-    // );
   }
 
   cancel(this: Writable<this>): void {
@@ -96,7 +83,9 @@ export class Order {
     this.state = OrderState.REJECTED;
   }
 
-  noteReversingAuthorization() {}
+  noteReservingPayment() {}
+
+  noteReversingPayment() {}
 
   revise(this: Writable<this>, revision: OrderRevision): OrderRevisionProposed {
     if (this.state !== OrderState.APPROVED) {
@@ -198,7 +187,7 @@ export class OrderLineItem {
 }
 
 export interface OrderDetails {
-  readonly consumerId: UUID;
+  readonly customerId: UUID;
   readonly restaurantId: UUID;
   readonly lineItems: readonly OrderLineItem[];
   readonly orderTotal: Money;

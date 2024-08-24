@@ -1,18 +1,19 @@
 import { restate, RestateServiceContext } from 'deepkit-restate';
 import { UUID } from '@deepkit/type';
 
+import { CreateOrderSagaState } from '@ftgo/order-service-api';
 import { RestaurantCreatedEvent } from '@ftgo/restaurant-service-api';
 import {
   KitchenServiceApi,
   KitchenServiceHandlers,
   Ticket,
   TicketDetails,
-  KitchenTicketNotFound,
-  KitchenConfirmCreateTicket,
+  TicketNotFound,
+  TicketConfirmed,
+  TicketCreated,
 } from '@ftgo/kitchen-service-api';
 
 import { TicketRepository } from './ticket.repository';
-import { CreateOrderSagaState } from '@ftgo/order-service-api';
 
 @restate.service<KitchenServiceApi>()
 export class KitchenService implements KitchenServiceHandlers {
@@ -21,24 +22,20 @@ export class KitchenService implements KitchenServiceHandlers {
     private readonly ctx: RestateServiceContext,
   ) {}
 
-  // @ts-ignore
   @(restate.event<RestaurantCreatedEvent>().handler())
   async createMenu({ restaurant }: RestaurantCreatedEvent): Promise<void> {}
 
-  // @ts-ignore
   @(restate.event<RestaurantCreatedEvent>().handler())
   async reviseMenu({ restaurant }: RestaurantCreatedEvent): Promise<void> {}
 
   @restate.handler()
-  async beginCancelTicket(restaurantId: UUID, orderId: UUID): Promise<Ticket> {
-    return Promise.resolve(undefined);
-  }
+  async beginCancelTicket(restaurantId: UUID, orderId: UUID): Promise<Ticket> {}
 
   @restate.handler()
   async cancelTicket(id: UUID): Promise<Ticket> {
     const ticket = await this.ticket.find({ id });
     if (!ticket) {
-      throw new KitchenTicketNotFound();
+      throw new TicketNotFound(id);
     }
     ticket.cancel();
     await this.ticket.persist(ticket);
@@ -53,21 +50,19 @@ export class KitchenService implements KitchenServiceHandlers {
   async confirmCancelTicket(
     restaurantId: UUID,
     orderId: UUID,
-  ): Promise<Ticket> {
-    return Promise.resolve(undefined);
-  }
+  ): Promise<Ticket> {}
 
   @restate.handler()
-  async confirmCreateTicket(id: UUID, readyAt: Date): Promise<Ticket> {
+  async confirmTicket(id: UUID, readyAt: Date): Promise<Ticket> {
     const ticket = await this.ticket.find({ id });
     if (!ticket) {
-      throw new KitchenTicketNotFound();
+      throw new TicketNotFound(id);
     }
     ticket.confirm();
     await this.ticket.persist(ticket);
-    await this.ctx.resolveAwakeable<KitchenConfirmCreateTicket>(
+    await this.ctx.resolveAwakeable<TicketConfirmed>(
       ticket.confirmCreateAwakeableId!,
-      new KitchenConfirmCreateTicket(readyAt),
+      new TicketConfirmed(readyAt),
     );
     return ticket;
   }
@@ -78,21 +73,20 @@ export class KitchenService implements KitchenServiceHandlers {
     orderId: UUID,
     details: TicketDetails,
     confirmAwakeableId: string,
-  ): Promise<Ticket> {
+  ): Promise<TicketCreated> {
     // TODO: notify kitchen staff that a ticket has been created
-    return await this.ticket.create(
+    const ticket = await this.ticket.create(
       restaurantId,
       orderId,
       details,
       confirmAwakeableId,
     );
+    return new TicketCreated(ticket.id);
   }
 
   @restate.handler()
   async undoBeginCancelTicket(
     restaurantId: UUID,
     orderId: UUID,
-  ): Promise<Ticket> {
-    return Promise.resolve(undefined);
-  }
+  ): Promise<Ticket> {}
 }

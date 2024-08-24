@@ -8,6 +8,7 @@ import {
 } from '@ftgo/restaurant-service-api';
 
 import { Ticket, TicketDetails } from './entities';
+import { TicketCreated, TicketNotFound } from './replies';
 
 export interface KitchenServiceHandlers {
   createTicket(
@@ -15,8 +16,8 @@ export interface KitchenServiceHandlers {
     orderId: UUID,
     details: TicketDetails,
     confirmAwakeableId: string,
-  ): Promise<Ticket>;
-  confirmCreateTicket(id: UUID, readyAt: Date): Promise<Ticket>;
+  ): Promise<TicketCreated>;
+  confirmTicket(id: UUID, readyAt: Date): Promise<Ticket>;
   cancelTicket(id: UUID): Promise<Ticket>;
   beginCancelTicket(restaurantId: UUID, orderId: UUID): Promise<Ticket>;
   undoBeginCancelTicket(restaurantId: UUID, orderId: UUID): Promise<Ticket>;
@@ -27,5 +28,6 @@ export interface KitchenServiceHandlers {
 
 export type KitchenServiceApi = RestateService<
   'Kitchen',
-  KitchenServiceHandlers
+  KitchenServiceHandlers,
+  [TicketNotFound]
 >;

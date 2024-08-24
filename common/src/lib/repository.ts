@@ -6,14 +6,9 @@ import {
   TypeClass,
 } from '@deepkit/type';
 import { RestateContextStorage, RestateCustomContext } from 'deepkit-restate';
-import {
-  DatabaseQueryModel,
-  DeleteResult,
-  OrmEntity,
-  PatchResult,
-} from '@deepkit/orm';
+import { DatabaseQueryModel, OrmEntity } from '@deepkit/orm';
 
-import { Database } from '@ftgo/common';
+import { Database } from './database';
 
 export class RestateRepository<E extends OrmEntity> {
   readonly #type: TypeClass;
@@ -30,11 +25,8 @@ export class RestateRepository<E extends OrmEntity> {
     return this.contextStorage.getStore()!;
   }
 
-  async delete(
-    filter: DatabaseQueryModel<E>['filter'],
-  ): Promise<DeleteResult<E>> {
-    // TODO: serde
-    return await this.#ctx.run<DeleteResult<E>>(() =>
+  async delete(filter: DatabaseQueryModel<E>['filter']): Promise<void> {
+    await this.#ctx.run(() =>
       this.database.query(this.#type.classType).filter(filter).deleteOne(),
     );
   }
@@ -53,18 +45,18 @@ export class RestateRepository<E extends OrmEntity> {
   async patch(
     filter: DatabaseQueryModel<E>['filter'],
     changes: ChangesInterface<E> | DeepPartial<E>,
-  ): Promise<PatchResult<E>> {
-    // TODO: serde
-    return await this.#ctx.run<PatchResult<E>>(() =>
-      this.database
+  ): Promise<E> {
+    return await this.#ctx.run<E>(async () => {
+      const { returning } = await this.database
         .query(this.#type.classType)
         .filter(filter)
-        .patchOne(changes),
-    );
+        .patchOne(changes);
+      return returning as E;
+    }, this.#type);
   }
 
   async create(...args: ConstructorParameters<ClassType<E>>): Promise<E> {
-    return await this.#ctx.run(async () => {
+    return await this.#ctx.run<E>(async () => {
       const et = new this.#type.classType(...args);
       await this.database.persist(et);
       return et;

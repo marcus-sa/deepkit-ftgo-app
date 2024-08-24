@@ -1,7 +1,7 @@
 import { restate, Saga } from 'deepkit-restate';
 
 import { KitchenServiceApi } from '@ftgo/kitchen-service-api';
-import { AccountingServiceApi } from '@ftgo/accounting-service-api';
+import { PaymentServiceApi } from '@ftgo/payment-service-api';
 import {
   CancelOrderSagaApi,
   CancelOrderSagaData,
@@ -27,7 +27,7 @@ export class CancelOrderSaga extends Saga<CancelOrderSagaData> {
   constructor(
     private readonly order: OrderServiceApi,
     private readonly kitchen: KitchenServiceApi,
-    private readonly accounting: AccountingServiceApi,
+    private readonly accounting: PaymentServiceApi,
   ) {
     super();
   }
@@ -49,12 +49,12 @@ export class CancelOrderSaga extends Saga<CancelOrderSagaData> {
   }
 
   reverseAuthorization({
-    consumerId,
+    customerId,
     orderId,
     orderTotal,
   }: CancelOrderSagaData) {
     return this.accounting.reverseAuthorization(
-      consumerId,
+      customerId,
       orderId,
       orderTotal,
     );

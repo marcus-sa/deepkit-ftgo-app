@@ -1,9 +1,0 @@
-{
-  "name": "@ftgo/accounting-service-api",
-  "version": "0.0.1",
-  "type": "module",
-  "dependencies": {
-    "tslib": "^2.3.0"
-  },
-  "private": true
-}
