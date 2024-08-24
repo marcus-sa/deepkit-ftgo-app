@@ -1,14 +1,10 @@
 import { UUID } from '@deepkit/type';
 
 export class PaymentAuthorized {
-  constructor(readonly customerId: UUID) {}
-}
-
-export class PaymentReserved {
   constructor(readonly paymentId: UUID) {}
 }
 
-export class PaymentReversed {
+export class PaymentAuthorizationReversed {
   constructor(readonly paymentId: UUID) {}
 }
 
@@ -17,6 +13,18 @@ export class PaymentAuthorizationFailed extends Error {
     readonly customerId: UUID,
     readonly reason: string,
   ) {
+    super();
+  }
+}
+
+export class PaymentNotFound extends Error {
+  constructor(readonly paymentId: UUID) {
+    super();
+  }
+}
+
+export class StripeCustomerNotFound extends Error {
+  constructor(readonly customerId: UUID) {
     super();
   }
 }

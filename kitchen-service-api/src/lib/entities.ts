@@ -1,6 +1,8 @@
 import { entity, integer, JSONEntity, Positive, UUID } from '@deepkit/type';
 import { Writable } from 'type-fest';
 
+import { UnsupportedStateTransitionException } from '@ftgo/common';
+
 @entity.name('kitchen')
 export class Kitchen {
   static create(data: JSONEntity<Kitchen>): Kitchen {
@@ -35,11 +37,20 @@ export class Ticket {
   }
 
   cancel(this: Writable<this>) {
+    if (
+      this.state !== TicketState.CREATED &&
+      this.state !== TicketState.CONFIRMED
+    ) {
+      throw new UnsupportedStateTransitionException(this.state);
+    }
     this.state = TicketState.CANCELLED;
     // delete this.confirmCancelAwakeableId;
   }
 
   confirm(this: Writable<this>): void {
+    if (this.state !== TicketState.CREATED) {
+      throw new UnsupportedStateTransitionException(this.state);
+    }
     this.state = TicketState.CONFIRMED;
     // delete this.confirmCreateAwakeableId;
   }

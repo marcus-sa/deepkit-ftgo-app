@@ -24,6 +24,7 @@
     "@restatedev/restate-sdk": "1.2.0",
     "deepkit-restate": "0.0.47",
     "kafkajs": "2.2.4",
+    "stripe": "^16.8.0",
     "tslib": "2.6.3"
   },
   "devDependencies": {

@@ -1,6 +1,5 @@
 import { restate, RestateService } from 'deepkit-restate';
 import { UUID } from '@deepkit/type';
-import { ItemNotFound } from '@deepkit/orm';
 
 import {
   Restaurant,
@@ -10,7 +9,11 @@ import {
 
 import { Order } from './entities';
 import { CreateOrderRequest } from './dtos';
-import { OrderMinimumNotMetException } from './replies';
+import {
+  OrderApproved,
+  OrderMinimumNotMetException,
+  OrderNotFound,
+} from './replies';
 
 export interface OrderServiceHandlers {
   create(request: CreateOrderRequest): Promise<Order>;
@@ -21,7 +24,7 @@ export interface OrderServiceHandlers {
   cancel(id: UUID): Promise<Order>;
   confirmCancel(id: UUID): Promise<Order>;
   reject(id: UUID): Promise<Order>;
-  approve(id: UUID): Promise<Order>;
+  approve(id: UUID): Promise<OrderApproved>;
   createMenu(event: RestaurantCreatedEvent): Promise<void>;
   reviseMenu(event: RestaurantCreatedEvent): Promise<void>;
 }
@@ -29,5 +32,5 @@ export interface OrderServiceHandlers {
 export type OrderServiceApi = RestateService<
   'Order',
   OrderServiceHandlers,
-  [ItemNotFound, OrderMinimumNotMetException]
+  [OrderNotFound, OrderMinimumNotMetException]
 >;

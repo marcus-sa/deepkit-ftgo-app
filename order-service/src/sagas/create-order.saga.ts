@@ -8,10 +8,12 @@ import { cast } from '@deepkit/type';
 import { Writable } from 'type-fest';
 
 import { CustomerServiceApi } from '@ftgo/customer-service-api';
-import { PaymentReserved, PaymentServiceApi } from '@ftgo/payment-service-api';
+import {
+  PaymentAuthorized,
+  PaymentServiceApi,
+} from '@ftgo/payment-service-api';
 import {
   KitchenServiceApi,
-  Ticket,
   TicketConfirmed,
   TicketCreated,
   TicketDetails,
@@ -20,6 +22,8 @@ import {
   CreateOrderSagaApi,
   CreateOrderSagaData,
   CreateOrderSagaState,
+  OrderApproved,
+  OrderRejected,
   OrderServiceApi,
 } from '@ftgo/order-service-api';
 
@@ -29,22 +33,22 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
 
   readonly definition = this.step()
     .compensate(this.reject)
+    .onReply<OrderRejected>(this.handleRejected)
     .step()
     .invoke(this.validate)
     .step()
-    .invoke(this.reservePayment)
-    .onReply<PaymentReserved>(this.handlePaymentReserved)
-    .compensate(this.reversePayment)
+    .invoke(this.authorizePayment)
+    .onReply<PaymentAuthorized>(this.handlePaymentAuthorized)
+    .compensate(this.reversePaymentAuthorization)
     .step()
     .invoke(this.createTicket)
     .onReply<TicketCreated>(this.handleTicketCreated)
     .compensate(this.cancelTicket)
     .step()
-    .invoke(this.authorize)
-    .step()
     .invoke(this.waitForTicketConfirmation)
     .step()
     .invoke(this.approve)
+    .onReply<OrderApproved>(this.handleApproved)
     .build();
 
   constructor(
@@ -61,34 +65,38 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     return this.order.reject(orderId);
   }
 
+  handleRejected(data: Writable<CreateOrderSagaData>) {
+    data.state = CreateOrderSagaState.REJECTED;
+  }
+
   validate({
     orderDetails: { customerId, orderTotal },
     orderId,
   }: CreateOrderSagaData) {
-    // validate that customer can reserve the money
+    // validate that customer can authorize the money
     return this.customer.validateOrder(customerId, orderId, orderTotal);
   }
 
-  reservePayment({
+  authorizePayment({
     orderDetails: { customerId, orderTotal },
     orderId,
   }: CreateOrderSagaData) {
-    return this.payment.reserve(customerId, orderId, orderTotal);
+    return this.payment.authorize(customerId, orderId, orderTotal);
   }
 
-  handlePaymentReserved(
+  handlePaymentAuthorized(
     data: Writable<CreateOrderSagaData>,
-    { paymentId }: PaymentReserved,
+    { paymentId }: PaymentAuthorized,
   ) {
     data.paymentId = paymentId;
-    data.state = CreateOrderSagaState.PAYMENT_RESERVED;
+    data.state = CreateOrderSagaState.PAYMENT_AUTHORIZED;
   }
 
-  reversePayment({ paymentId }: CreateOrderSagaData) {
+  reversePaymentAuthorization({ paymentId }: CreateOrderSagaData) {
     if (!paymentId) {
       throw new Error('Missing payment id');
     }
-    return this.payment.reverse(paymentId);
+    return this.payment.reverseAuthorization(paymentId);
   }
 
   async createTicket({
@@ -109,6 +117,7 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     data: Writable<CreateOrderSagaData>,
     { ticketId }: TicketCreated,
   ) {
+    data.state = CreateOrderSagaState.WAITING_FOR_CONFIRMATION;
     data.ticketId = ticketId;
   }
 
@@ -119,19 +128,16 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     return this.kitchen.cancelTicket(ticketId);
   }
 
-  // TODO: should payment be processed upon ticket confirmation or after delivery?
-  authorize({
-    orderDetails: { customerId, orderTotal },
-    orderId,
-  }: CreateOrderSagaData) {
-    return this.payment.authorize(customerId, orderId, orderTotal);
-  }
-
-  async waitForTicketConfirmation() {
+  async waitForTicketConfirmation(data: Writable<CreateOrderSagaData>) {
     await this.#confirmTicketAwakeable!.promise;
+    data.state = CreateOrderSagaState.CONFIRMED;
   }
 
   approve({ orderId }: CreateOrderSagaData) {
     return this.order.approve(orderId);
+  }
+
+  handleApproved(data: Writable<CreateOrderSagaData>) {
+    data.state = CreateOrderSagaState.APPROVED;
   }
 }

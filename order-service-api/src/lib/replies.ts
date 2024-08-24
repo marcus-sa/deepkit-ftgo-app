@@ -12,6 +12,14 @@ export class OrderNotFound extends Error {
   }
 }
 
+export class OrderApproved {
+  constructor() {}
+}
+
+export class OrderRejected {
+  constructor() {}
+}
+
 export class OrderRevisionProposed {
   constructor(
     readonly revision: OrderRevision,

@@ -4,6 +4,10 @@ export class Money {
   static ZERO = new Money(0);
   static MAX = new Money(Number.MAX_SAFE_INTEGER);
 
+  get cents(): number {
+    return this.amount * 100;
+  }
+
   constructor(readonly amount: float) {}
 
   add(delta: Money): Money {

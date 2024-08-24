@@ -38,7 +38,7 @@ export class KitchenService implements KitchenServiceHandlers {
       throw new TicketNotFound(id);
     }
     ticket.cancel();
-    await this.ticket.persist(ticket);
+    await this.ticket.save(ticket);
     await this.ctx.rejectAwakeable(
       ticket.confirmCreateAwakeableId!,
       CreateOrderSagaState.CANCELLED,
@@ -59,7 +59,7 @@ export class KitchenService implements KitchenServiceHandlers {
       throw new TicketNotFound(id);
     }
     ticket.confirm();
-    await this.ticket.persist(ticket);
+    await this.ticket.save(ticket);
     await this.ctx.resolveAwakeable<TicketConfirmed>(
       ticket.confirmCreateAwakeableId!,
       new TicketConfirmed(readyAt),

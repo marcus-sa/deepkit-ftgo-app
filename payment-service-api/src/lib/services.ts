@@ -1,28 +1,26 @@
 import { RestateService } from 'deepkit-restate';
 import { UUID } from '@deepkit/type';
 
-import { CustomerCreatedEvent } from '@ftgo/customer-service-api';
 import { Money } from '@ftgo/common';
 
+import { Payment } from './entities';
 import {
   PaymentAuthorizationFailed,
   PaymentAuthorized,
-  PaymentReserved,
+  StripeCustomerNotFound,
 } from './replies';
-import { Payment } from './entities';
 
 export interface PaymentServiceHandlers {
-  createCustomer(event: CustomerCreatedEvent): Promise<void>;
-  reserve(
+  authorize(
     customerId: UUID,
     orderId: UUID,
     orderTotal: Money,
-  ): Promise<PaymentReserved>;
-  reverse(paymentId: UUID): Promise<PaymentReserved>;
+  ): Promise<PaymentAuthorized>;
+  reverseAuthorization(paymentId: UUID): Promise<PaymentAuthorized>;
 }
 
 export type PaymentServiceApi = RestateService<
   'Payment',
   PaymentServiceHandlers,
-  [Payment, PaymentAuthorizationFailed]
+  [Payment, PaymentAuthorizationFailed, StripeCustomerNotFound]
 >;

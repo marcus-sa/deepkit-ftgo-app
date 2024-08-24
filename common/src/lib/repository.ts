@@ -38,7 +38,7 @@ export class RestateRepository<E extends OrmEntity> {
       .findOneOrUndefined();
   }
 
-  async persist(entity: E): Promise<void> {
+  async save(entity: E): Promise<void> {
     await this.#ctx.run(() => this.database.persist(entity));
   }
 

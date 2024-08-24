@@ -47,7 +47,7 @@ export class OrderService implements OrderServiceHandlers {
       throw new OrderNotFound(id);
     }
     order.cancel();
-    await this.order.persist(order);
+    await this.order.save(order);
     return order;
   }
 
