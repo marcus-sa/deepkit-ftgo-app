@@ -1,0 +1,12 @@
+pre-commit:
+  commands:
+    github-actions:
+      glob: '*.{yaml,yml}'
+      root: '.github'
+      run: echo {staged_files} && actionlint
+    eslint:
+      glob: '*.{js,ts,jsx,tsx}'
+      run: bunx eslint --quiet --fix {staged_files} && git add {staged_files}
+    prettier:
+      glob: '*.{json,yml,yaml}'
+      run: bunx prettier --write {staged_files} && git add {staged_files}
