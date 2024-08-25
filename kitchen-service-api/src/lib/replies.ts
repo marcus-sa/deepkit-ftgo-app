@@ -1,13 +1,13 @@
 import { UUID } from '@deepkit/type';
 
 export class TicketNotFound {
-  constructor(readonly ticketId: UUID) {}
+  constructor(public readonly ticketId: UUID) {}
 }
 
 export class TicketConfirmed {
-  constructor(readonly readyAt: Date) {}
+  constructor(public readonly readyAt: Date) {}
 }
 
 export class TicketCreated {
-  constructor(readonly ticketId: UUID) {}
+  constructor(public readonly ticketId: UUID) {}
 }

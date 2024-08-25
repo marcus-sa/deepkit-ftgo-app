@@ -129,13 +129,13 @@ export class Order {
 // @entity.name('order-revision')
 export class OrderRevision {
   constructor(
-    readonly revisedOrderLineItems: readonly RevisedOrderLineItem[],
-    readonly deliveryInformation?: DeliveryInformation,
+    public readonly revisedOrderLineItems: readonly RevisedOrderLineItem[],
+    public readonly deliveryInformation?: DeliveryInformation,
   ) {}
 }
 
 export class OrderLineItems {
-  constructor(readonly lineItems: readonly OrderLineItem[]) {}
+  constructor(public readonly lineItems: readonly OrderLineItem[]) {}
 
   changeToOrderTotal(orderRevision: OrderRevision) {}
 
@@ -176,6 +176,10 @@ export class OrderLineItem {
   readonly menuItemId: UUID;
   readonly name: string;
   readonly price: Money;
+
+  static create(data: JSONPartial<OrderLineItem>) {
+    return Object.assign(new OrderLineItem(), data);
+  }
 
   deltaForChangedQuantity(newQuantity: integer & Positive): Money {
     return this.price.multiply(newQuantity - this.quantity);

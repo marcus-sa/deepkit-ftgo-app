@@ -16,7 +16,7 @@ export enum CreateOrderSagaState {
 }
 
 export class CreateOrderSagaData {
-  readonly state: CreateOrderSagaState = CreateOrderSagaState.STARTED;
+  readonly state?: CreateOrderSagaState = CreateOrderSagaState.STARTED;
   readonly orderId: UUID;
   readonly orderDetails: OrderDetails;
   readonly paymentId?: UUID;

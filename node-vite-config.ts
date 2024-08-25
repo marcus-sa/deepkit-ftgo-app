@@ -55,7 +55,6 @@ export function defineNodeConfig({
         ...(plugins || []),
       ],
       test: {
-        globals: true,
         passWithNoTests: true,
         environment: 'node',
         include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
@@ -68,6 +67,7 @@ export function defineNodeConfig({
           ),
           provider: 'v8',
         },
+        isolate: false,
         cache: {
           dir: join(workspaceRoot, 'node_modules/.cache/vitest'),
         },

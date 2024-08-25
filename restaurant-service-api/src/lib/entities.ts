@@ -31,7 +31,7 @@ export class MenuItem {
   readonly id: UUID & PrimaryKey = uuid();
 
   constructor(
-    readonly name: string,
-    readonly price: Money,
+    public readonly name: string,
+    public readonly price: Money,
   ) {}
 }

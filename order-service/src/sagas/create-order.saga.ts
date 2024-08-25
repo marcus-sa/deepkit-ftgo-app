@@ -29,9 +29,10 @@ import {
 
 @restate.saga<CreateOrderSagaApi>()
 export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
-  #confirmTicketAwakeable?: RestateAwakeable<TicketConfirmed>;
+  confirmTicketAwakeable?: RestateAwakeable<TicketConfirmed>;
 
   readonly definition = this.step()
+    .invoke(this.create)
     .compensate(this.reject)
     .onReply<OrderRejected>(this.handleRejected)
     .step()
@@ -41,8 +42,11 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     .onReply<PaymentAuthorized>(this.handlePaymentAuthorized)
     .compensate(this.reversePaymentAuthorization)
     .step()
+    .invoke(this.test)
+    .step()
     .invoke(this.createTicket)
     .onReply<TicketCreated>(this.handleTicketCreated)
+    // TODO: should this be done when the kitchen rejects the ticket?
     .compensate(this.cancelTicket)
     .step()
     .invoke(this.waitForTicketConfirmation)
@@ -59,6 +63,10 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     private readonly ctx: RestateSagaContext,
   ) {
     super();
+  }
+
+  create({ orderId, orderDetails }: CreateOrderSagaData) {
+    return this.order.create(orderId, orderDetails);
   }
 
   reject({ orderId }: CreateOrderSagaData) {
@@ -99,17 +107,21 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     return this.payment.reverseAuthorization(paymentId);
   }
 
-  async createTicket({
+  test() {
+    console.log('test');
+  }
+
+  createTicket({
     orderDetails: { lineItems, restaurantId },
     orderId,
   }: CreateOrderSagaData) {
     const details = cast<TicketDetails>({ lineItems });
-    this.#confirmTicketAwakeable = this.ctx.awakeable<TicketConfirmed>();
+    this.confirmTicketAwakeable = this.ctx.awakeable<TicketConfirmed>();
     return this.kitchen.createTicket(
       restaurantId,
       orderId,
       details,
-      this.#confirmTicketAwakeable!.id,
+      this.confirmTicketAwakeable!.id,
     );
   }
 
@@ -117,6 +129,7 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     data: Writable<CreateOrderSagaData>,
     { ticketId }: TicketCreated,
   ) {
+    console.log('handleTicketCreated');
     data.state = CreateOrderSagaState.WAITING_FOR_CONFIRMATION;
     data.ticketId = ticketId;
   }
@@ -129,7 +142,8 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
   }
 
   async waitForTicketConfirmation(data: Writable<CreateOrderSagaData>) {
-    await this.#confirmTicketAwakeable!.promise;
+    console.log('waitForTicketConfirmation');
+    await this.confirmTicketAwakeable!.promise;
     data.state = CreateOrderSagaState.CONFIRMED;
   }
 

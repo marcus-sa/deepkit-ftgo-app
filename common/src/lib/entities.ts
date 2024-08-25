@@ -8,7 +8,7 @@ export class Money {
     return this.amount * 100;
   }
 
-  constructor(readonly amount: float) {}
+  constructor(public readonly amount: float) {}
 
   add(delta: Money): Money {
     return new Money(this.amount + delta.amount);
@@ -29,7 +29,7 @@ export class Money {
 
 export class RevisedOrderLineItem {
   constructor(
-    readonly quantity: integer & Positive,
-    readonly menuItemId: UUID,
+    public readonly quantity: integer & Positive,
+    public readonly menuItemId: UUID,
   ) {}
 }

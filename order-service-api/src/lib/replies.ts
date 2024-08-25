@@ -7,29 +7,25 @@ export class OrderMinimumNotMetException extends Error {}
 
 @entity.name('@error/order-not-found')
 export class OrderNotFound extends Error {
-  constructor(readonly orderId: UUID) {
+  constructor(public readonly orderId: UUID) {
     super();
   }
 }
 
-export class OrderApproved {
-  constructor() {}
-}
+export class OrderApproved {}
 
-export class OrderRejected {
-  constructor() {}
-}
+export class OrderRejected {}
 
 export class OrderRevisionProposed {
   constructor(
-    readonly revision: OrderRevision,
-    readonly change: LineItemQuantityChange,
+    public readonly revision: OrderRevision,
+    public readonly change: LineItemQuantityChange,
   ) {}
 }
 
 export class OrderRevised {
   constructor(
-    readonly revision: OrderRevision,
-    readonly change: LineItemQuantityChange,
+    public readonly revision: OrderRevision,
+    public readonly change: LineItemQuantityChange,
   ) {}
 }

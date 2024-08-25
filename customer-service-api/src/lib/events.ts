@@ -4,9 +4,9 @@ import { PersonName } from '@ftgo/common';
 
 export class CustomerCreatedEvent {
   constructor(
-    readonly id: UUID,
-    readonly name: PersonName,
-    readonly email: Email,
-    readonly phoneNumber?: string,
+    public readonly id: UUID,
+    public readonly name: PersonName,
+    public readonly email: Email,
+    public readonly phoneNumber?: string,
   ) {}
 }

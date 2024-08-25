@@ -6,6 +6,7 @@ import {
   CreateOrderRequest,
   Order,
   OrderNotFound,
+  OrderRejected,
   OrderServiceApi,
   OrderServiceHandlers,
 } from '@ftgo/order-service-api';
@@ -38,7 +39,9 @@ export class OrderService implements OrderServiceHandlers {
   async approve(id: UUID): Promise<Order> {}
 
   @restate.handler()
-  async reject(id: UUID): Promise<Order> {}
+  async reject(id: UUID): Promise<OrderRejected> {
+    return new OrderRejected();
+  }
 
   @restate.handler()
   async beginCancel(id: UUID): Promise<Order> {
