@@ -1,9 +1,9 @@
 import { RestateAdminClient, RestateClient } from 'deepkit-restate';
 
 export const client = new RestateClient({
-  url: import.meta.env.RESTATE_INGRESS_URL,
+  url: 'http://0.0.0.0:8080',
 });
 
 export const admin = new RestateAdminClient({
-  url: import.meta.env.RESTATE_ADMIN_URL,
+  url: 'http://0.0.0.0:9070',
 });

@@ -1,9 +1,9 @@
 import { UUID } from '@deepkit/type';
 import { restate, RestateEventsPublisher } from 'deepkit-restate';
 
+import { Address } from '@ftgo/common';
 import {
-  CreateRestaurantRequest,
-  Restaurant,
+  Menu,
   RestaurantCreatedEvent,
   RestaurantServiceApi,
   RestaurantServiceHandlers,
@@ -19,9 +19,11 @@ export class RestaurantService implements RestaurantServiceHandlers {
   ) {}
 
   @restate.handler()
-  async create(request: CreateRestaurantRequest): Promise<Restaurant> {
-    const restaurant = await this.restaurant.create(request);
-    await this.events.publish([new RestaurantCreatedEvent(restaurant)]);
-    return restaurant;
+  async create(name: string, address: Address, menu: Menu): Promise<UUID> {
+    const restaurant = await this.restaurant.create(name, address, menu);
+    await this.events.publish<[RestaurantCreatedEvent]>([
+      new RestaurantCreatedEvent(restaurant.id),
+    ]);
+    return restaurant.id;
   }
 }

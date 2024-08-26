@@ -9,44 +9,43 @@ import {
   PaymentAuthorized,
   PaymentServiceApi,
   PaymentServiceHandlers,
+  PaymentCustomer,
 } from '@ftgo/payment-service-api';
 
 import { PaymentRepository } from './payment.repository';
-import { StripeCustomerRepository } from './stripe-customer.repository';
-import { Stripe } from './stripe';
+import { CustomerRepository } from './customer.repository';
+import { Stripe, StripeCardError } from './stripe';
 import { StripePaymentIntent } from './types';
 
 @restate.service<PaymentServiceApi>()
 export class PaymentService implements PaymentServiceHandlers {
   constructor(
     private readonly payment: PaymentRepository,
-    private readonly stripeCustomer: StripeCustomerRepository,
+    private readonly customer: CustomerRepository,
     private readonly stripe: Stripe,
     private readonly ctx: RestateServiceContext,
   ) {}
 
+  // @ts-expect-error invalid number of arguments
   @(restate.event<CustomerCreatedEvent>().handler())
   async handleCustomerCreated({
-    id,
+    id: customerId,
     email,
     name,
     phoneNumber,
   }: CustomerCreatedEvent): Promise<void> {
-    const { id: stripeCustomerId } = await this.ctx.run<{ id: UUID }>(() =>
+    const { id: stripeCustomerId } = await this.ctx.run<{ id: string }>(() =>
       this.stripe.customers.create({
         email,
         phone: phoneNumber as string,
         name: `${name.firstName} ${name.lastName}`,
         metadata: {
-          customerId: id,
+          customerId,
         },
       }),
     );
 
-    await this.stripeCustomer.create({
-      id: stripeCustomerId,
-      customerId: id,
-    });
+    await this.customer.create(stripeCustomerId, customerId);
   }
 
   @restate.handler()
@@ -55,8 +54,7 @@ export class PaymentService implements PaymentServiceHandlers {
     orderId: UUID,
     orderTotal: Money,
   ): Promise<PaymentAuthorized> {
-    const stripeCustomer =
-      await this.stripeCustomer.findByCustomerId(customerId);
+    const customer = await this.customer.findByCustomerId(customerId);
 
     const [paymentIntent, error] = await this.ctx.run<
       [StripePaymentIntent, Error?]
@@ -64,7 +62,7 @@ export class PaymentService implements PaymentServiceHandlers {
       try {
         return [
           await this.stripe.paymentIntents.create({
-            customer: stripeCustomer.id,
+            customer: customer.stripeCustomerId,
             currency: 'usd',
             automatic_payment_methods: {
               enabled: true,
@@ -78,23 +76,23 @@ export class PaymentService implements PaymentServiceHandlers {
             },
             amount: orderTotal.cents,
           }),
-        ];
+        ] as [StripePaymentIntent];
       } catch (err) {
-        if (err.type === 'StripeCardError') {
-          return [err.payment_intent, err];
+        if (err instanceof StripeCardError) {
+          return [err.payment_intent, err] as [StripePaymentIntent, Error];
         }
 
         throw err;
       }
     });
 
-    const payment = await this.payment.create({
-      stripePaymentIntentId: paymentIntent.id,
-      status: paymentIntent.status,
+    const payment = await this.payment.create(
       customerId,
-      orderTotal,
       orderId,
-    });
+      orderTotal,
+      paymentIntent.id,
+      paymentIntent.status,
+    );
 
     if (error) {
       throw new PaymentAuthorizationFailed(customerId, error.message);
@@ -118,5 +116,10 @@ export class PaymentService implements PaymentServiceHandlers {
     await this.payment.save(payment);
 
     return new PaymentAuthorizationReversed(paymentId);
+  }
+
+  @restate.handler()
+  async getCustomer(customerId: UUID): Promise<PaymentCustomer> {
+    return await this.customer.findByCustomerId(customerId);
   }
 }

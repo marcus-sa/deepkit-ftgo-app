@@ -1,12 +1,12 @@
 import { RestateService } from 'deepkit-restate';
-import { UUID } from '@deepkit/type';
+import { Email, UUID } from '@deepkit/type';
 
 import { Money, PersonName } from '@ftgo/common';
 
 import { CustomerNotFound, CustomerVerificationFailed } from './replies';
 
 export interface CustomerServiceHandlers {
-  create(name: PersonName): Promise<UUID>;
+  create(name: PersonName, email: Email): Promise<UUID>;
   validateOrder(
     customerId: UUID,
     orderId: UUID,
@@ -15,7 +15,7 @@ export interface CustomerServiceHandlers {
 }
 
 export type CustomerServiceApi = RestateService<
-  'Consumer',
+  'Customer',
   CustomerServiceHandlers,
   [CustomerNotFound, CustomerVerificationFailed]
 >;

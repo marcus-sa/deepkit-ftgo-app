@@ -2,10 +2,10 @@ import { entity, UUID } from '@deepkit/type';
 
 import { LineItemQuantityChange, OrderRevision } from './entities';
 
-@entity.name('@error/order-minimum-not-met')
-export class OrderMinimumNotMetException extends Error {}
+export class OrderMinimumNotMet extends Error {}
 
-@entity.name('@error/order-not-found')
+export class OrderLineItemNotFound extends Error {}
+
 export class OrderNotFound extends Error {
   constructor(public readonly orderId: UUID) {
     super();

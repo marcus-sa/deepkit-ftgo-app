@@ -23,6 +23,16 @@ export function defineNodeConfig({
 
     const projectPathFromWorkspaceRoot = root.replace(`${workspaceRoot}/`, '');
 
+    const buildLibsFromSource = process.env.NX_TASK_TARGET_TARGET === 'serve';
+
+    const envVars = Object.entries(process.env).reduce(
+      (defs, [key, value]) => ({
+        ...defs,
+        [`import.meta.env.${key}`]: JSON.stringify(value),
+      }),
+      {},
+    );
+
     return {
       root,
       cacheDir: `${workspaceRoot}/node_modules/.vite/${projectPathFromWorkspaceRoot}`,
@@ -51,7 +61,10 @@ export function defineNodeConfig({
             sourceMap: true,
           },
         }),
-        nxViteTsPaths({ debug, buildLibsFromSource: false }),
+        nxViteTsPaths({
+          debug,
+          buildLibsFromSource,
+        }),
         ...(plugins || []),
       ],
       test: {
@@ -75,6 +88,7 @@ export function defineNodeConfig({
       define: {
         'import.meta.vitest': mode === 'test',
         'import.meta.env.NX_WORKSPACE_ROOT': JSON.stringify(workspaceRoot),
+        ...envVars,
       },
     };
   });

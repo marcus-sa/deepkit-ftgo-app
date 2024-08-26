@@ -1,4 +1,4 @@
-import { restate, RestateServiceContext } from 'deepkit-restate';
+import { restate } from 'deepkit-restate';
 
 import {
   DeliveryServiceApi,

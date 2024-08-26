@@ -4,8 +4,7 @@ import { UUID } from '@deepkit/type';
 import { RestaurantCreatedEvent } from '@ftgo/restaurant-service-api';
 import {
   CreateOrderRequest,
-  Order,
-  OrderNotFound,
+  OrderApproved,
   OrderRejected,
   OrderServiceApi,
   OrderServiceHandlers,
@@ -17,52 +16,53 @@ import { OrderRepository } from './order.repository';
 export class OrderService implements OrderServiceHandlers {
   constructor(private readonly order: OrderRepository) {}
 
+  // @ts-expect-error invalid number of arguments
   @(restate.event<RestaurantCreatedEvent>().handler())
-  async createMenu({ restaurant }: RestaurantCreatedEvent): Promise<void> {}
+  async createMenu({ restaurantId }: RestaurantCreatedEvent): Promise<void> {}
 
+  // @ts-expect-error invalid number of arguments
   @(restate.event<RestaurantCreatedEvent>().handler())
-  async reviseMenu({ restaurant }: RestaurantCreatedEvent): Promise<void> {}
+  async reviseMenu({ restaurantId }: RestaurantCreatedEvent): Promise<void> {}
 
   @restate.handler()
-  async cancel(id: UUID): Promise<Order> {}
-
-  @restate.handler()
-  async get(id: UUID): Promise<Order> {
-    const order = await this.order.find({ id });
-    if (!order) {
-      throw new OrderNotFound(id);
-    }
-    return order;
+  async cancel(id: UUID): Promise<void> {
+    throw new Error('Not yet implemented');
   }
 
   @restate.handler()
-  async approve(id: UUID): Promise<Order> {}
+  async approve(id: UUID): Promise<OrderApproved> {
+    throw new Error('Not yet implemented');
+  }
 
   @restate.handler()
   async reject(id: UUID): Promise<OrderRejected> {
-    return new OrderRejected();
+    throw new Error('Not yet implemented');
   }
 
   @restate.handler()
-  async beginCancel(id: UUID): Promise<Order> {
-    const order = await this.order.find({ id });
-    if (!order) {
-      throw new OrderNotFound(id);
-    }
+  async beginCancel(id: UUID): Promise<void> {
+    const order = await this.order.findById(id);
     order.cancel();
     await this.order.save(order);
-    return order;
   }
 
   @restate.handler()
-  async undoCancel(id: UUID): Promise<Order> {}
+  async undoCancel(id: UUID): Promise<void> {
+    throw new Error('Not yet implemented');
+  }
 
   @restate.handler()
-  async confirmCancel(id: UUID): Promise<Order> {}
+  async confirmCancel(id: UUID): Promise<void> {
+    throw new Error('Not yet implemented');
+  }
 
   @restate.handler()
-  async undoBeginCancel(id: UUID): Promise<Order> {}
+  async undoBeginCancel(id: UUID): Promise<void> {
+    throw new Error('Not yet implemented');
+  }
 
   @restate.handler()
-  async create(request: CreateOrderRequest): Promise<Order> {}
+  async create(request: CreateOrderRequest): Promise<UUID> {
+    throw new Error('Not yet implemented');
+  }
 }

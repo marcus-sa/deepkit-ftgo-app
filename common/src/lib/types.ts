@@ -10,5 +10,5 @@ export interface Address {
   readonly street2?: string;
   readonly city: string;
   readonly state?: string;
-  readonly zip: string;
+  readonly zipCode: string;
 }

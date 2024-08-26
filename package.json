@@ -5,7 +5,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "postinstall": "deepkit-type-install && lefthook install"
+    "postinstall": "deepkit-type-install && lefthook install",
+    "start": "nx run-many -t=serve --projects=tag:app:service,tag:app:server --watch=false"
   },
   "dependencies": {
     "@deepkit/app": "^1.0.1-alpha.153",
@@ -23,7 +24,7 @@
     "@deepkit/sql": "^1.0.1-alpha.153",
     "@deepkit/type": "^1.0.1-alpha.153",
     "@restatedev/restate-sdk": "1.2.1",
-    "deepkit-restate": "0.0.60",
+    "deepkit-restate": "0.0.70",
     "kafkajs": "2.2.4",
     "stripe": "^16.8.0",
     "tslib": "2.6.3"
@@ -65,9 +66,6 @@
   "patchedDependencies": {
     "typescript@5.5.4": "patches/typescript@5.5.4.patch"
   },
-  "trustedDependencies": [
-    "nx"
-  ],
   "engines": {
     "node": "22.6.0",
     "bun": "1.1.22"

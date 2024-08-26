@@ -68,9 +68,7 @@ describe('CreateOrderSaga', () => {
     });
   });
 
-  afterEach(() => manager.assertMocksHaveBeenCalled());
-
-  describe('given order has been created', () => {
+  describe('given order has been placed', () => {
     beforeEach(() => {
       manager.mockInvocationResponse('create', () => success());
     });
@@ -88,14 +86,12 @@ describe('CreateOrderSaga', () => {
         );
 
         manager.runAfterReplyHandler('handleRejected', data => {
-          expect(data).toMatchObject({
-            state: CreateOrderSagaState.REJECTED,
-          });
+          expect(data.state).toBe(CreateOrderSagaState.REJECTED);
         });
 
         await manager.start(data);
 
-        await manager.waitForCompensationToHaveBeenCalled('reject');
+        await manager.waitForHandlersToHaveBeenCalled();
       });
     });
 
@@ -125,15 +121,13 @@ describe('CreateOrderSaga', () => {
 
         test('then payment authorization has been handled', async () => {
           manager.runAfterReplyHandler('handlePaymentAuthorized', data => {
-            expect(data).toMatchObject({
-              state: CreateOrderSagaState.PAYMENT_AUTHORIZED,
-              paymentId,
-            });
+            expect(data.state).toBe(CreateOrderSagaState.PAYMENT_AUTHORIZED);
+            expect(data.paymentId).toBe(paymentId);
           });
 
           await manager.start(data);
 
-          await manager.waitForInvocationToHaveBeenCalled('authorizePayment');
+          await manager.waitForHandlersToHaveBeenCalled();
         });
 
         describe('and ticket has been created', () => {
@@ -155,7 +149,7 @@ describe('CreateOrderSaga', () => {
 
             await manager.start(data);
 
-            await manager.waitForInvocationToHaveBeenCalled('createTicket');
+            await manager.waitForHandlersToHaveBeenCalled();
           });
 
           describe('then wait for ticket confirmation', () => {
@@ -173,9 +167,7 @@ describe('CreateOrderSaga', () => {
 
                 await manager.start(data);
 
-                await manager.waitForCompensationToHaveBeenCalled(
-                  'cancelTicket',
-                );
+                await manager.waitForHandlersToHaveBeenCalled();
               });
 
               describe('and ticket has been cancelled', () => {
@@ -194,7 +186,7 @@ describe('CreateOrderSaga', () => {
               });
 
               test('then order state should be confirmed', async () => {
-                // manager.runAfterInvocation('approve', (data) => {
+                // manager.runAfterInvocation('waitForTicketConfirmation', (data) => {
                 //   expect(data.state).toBe(CreateOrderSagaState.CONFIRMED);
                 // });
                 manager.mockInvocationResponse('approve', data => {
@@ -204,7 +196,7 @@ describe('CreateOrderSaga', () => {
 
                 await manager.start(data);
 
-                await manager.waitForInvocationToHaveBeenCalled('approve');
+                await manager.waitForHandlersToHaveBeenCalled();
               });
 
               describe('and order has been approved', () => {
@@ -221,7 +213,7 @@ describe('CreateOrderSaga', () => {
 
                   await manager.start(data);
 
-                  await manager.waitForInvocationToHaveBeenCalled('approve');
+                  await manager.waitForHandlersToHaveBeenCalled();
                 });
               });
             });

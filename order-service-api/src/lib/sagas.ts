@@ -30,9 +30,11 @@ export type CreateOrderSagaApi = RestateSaga<
 
 export class CancelOrderSagaData {
   readonly orderId: UUID;
-  readonly reverseRequestId: UUID;
   readonly restaurantId: UUID;
   readonly customerId: UUID;
+  readonly paymentId?: UUID;
+  readonly ticketId?: UUID;
+  readonly reverseRequestId: UUID;
   readonly orderTotal: Money;
 }
 

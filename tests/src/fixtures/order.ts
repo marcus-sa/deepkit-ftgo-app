@@ -1,7 +1,6 @@
+import { OrderLineItem } from '@ftgo/order-service-api';
 import { faker } from '@faker-js/faker';
 import { uuid } from '@deepkit/type';
-
-import { OrderLineItem, OrderLineItems } from '@ftgo/order-service-api';
 import { Money } from '@ftgo/common';
 
 export function createOrderLineItem(): OrderLineItem {

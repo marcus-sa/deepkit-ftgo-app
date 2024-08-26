@@ -4,7 +4,7 @@
   "projectType": "application",
   "prefix": "ftgo",
   "sourceRoot": "restaurant-service/src",
-  "tags": [],
+  "tags": ["app:service"],
   "targets": {
     "build": {
       "executor": "@nx/vite:build",

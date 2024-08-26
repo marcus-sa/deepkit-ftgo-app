@@ -2,16 +2,11 @@ import { beforeEach, describe, test } from 'vitest';
 import { UUID, uuid } from '@deepkit/type';
 import { faker } from '@faker-js/faker';
 
-import {
-  CreateOrderSagaApi,
-  OrderDetails,
-  OrderLineItem,
-  OrderLineItems,
-} from '@ftgo/order-service-api';
 import { Money } from '@ftgo/common';
+import { CreateOrderSagaApi, OrderDetails } from '@ftgo/order-service-api';
 
 import { client } from './clients';
-import { createCustomer, createRestaurant } from './utils';
+import * as helpers from './helpers';
 
 const createOrderSaga = client.saga<CreateOrderSagaApi>();
 
@@ -20,8 +15,8 @@ describe('create order', () => {
   let restaurantId: UUID;
 
   beforeEach(async () => {
-    customerId = await createCustomer();
-    restaurantId = await createRestaurant();
+    customerId = await helpers.createCustomer();
+    restaurantId = await helpers.createRestaurant();
   });
 
   describe('given order has been validated', () => {
@@ -43,12 +38,11 @@ describe('create order', () => {
       customerId,
       restaurantId,
       lineItems: [
-        OrderLineItem.create({
+        {
           quantity: 1,
-          menuItemId: uuid(),
           name: faker.food.dish(),
           price: new Money(10),
-        }),
+        },
       ],
       orderTotal: new Money(10),
     };

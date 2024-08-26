@@ -1,14 +1,8 @@
 import { RestateService } from 'deepkit-restate';
 import { UUID } from '@deepkit/type';
 
-import {
-  Restaurant,
-  RestaurantCreatedEvent,
-  RestaurantMenu,
-} from '@ftgo/restaurant-service-api';
-
-import { Ticket, TicketDetails } from './entities';
 import { TicketCreated, TicketNotFound } from './replies';
+import { TicketDetails } from './types';
 
 export interface KitchenServiceHandlers {
   createTicket(
@@ -17,13 +11,11 @@ export interface KitchenServiceHandlers {
     details: TicketDetails,
     confirmAwakeableId: string,
   ): Promise<TicketCreated>;
-  confirmTicket(id: UUID, readyAt: Date): Promise<Ticket>;
-  cancelTicket(id: UUID): Promise<Ticket>;
-  beginCancelTicket(restaurantId: UUID, orderId: UUID): Promise<Ticket>;
-  undoBeginCancelTicket(restaurantId: UUID, orderId: UUID): Promise<Ticket>;
-  confirmCancelTicket(restaurantId: UUID, orderId: UUID): Promise<Ticket>;
-  createMenu(event: RestaurantCreatedEvent): Promise<void>;
-  reviseMenu(event: RestaurantCreatedEvent): Promise<void>;
+  confirmTicket(id: UUID, readyAt: Date): Promise<void>;
+  rejectTicket(id: UUID, reason: string): Promise<void>;
+  beginCancelTicket(restaurantId: UUID, orderId: UUID): Promise<void>;
+  undoBeginCancelTicket(restaurantId: UUID, orderId: UUID): Promise<void>;
+  confirmCancelTicket(restaurantId: UUID, orderId: UUID): Promise<void>;
 }
 
 export type KitchenServiceApi = RestateService<

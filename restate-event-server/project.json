@@ -4,7 +4,7 @@
   "projectType": "application",
   "prefix": "ftgo",
   "sourceRoot": "restate-event-server/src",
-  "tags": [],
+  "tags": ["app:server"],
   "targets": {
     "build": {
       "executor": "@nx/vite:build",

@@ -11,3 +11,10 @@ export class TicketConfirmed {
 export class TicketCreated {
   constructor(public readonly ticketId: UUID) {}
 }
+
+export class TicketRejected {
+  constructor(
+    public readonly ticketId: UUID,
+    public readonly rejectedAt: Date,
+  ) {}
+}

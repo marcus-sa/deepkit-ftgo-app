@@ -1,19 +1,16 @@
 import { restate, RestateServiceContext } from 'deepkit-restate';
 import { UUID } from '@deepkit/type';
 
-import { CreateOrderSagaState } from '@ftgo/order-service-api';
 import { RestaurantCreatedEvent } from '@ftgo/restaurant-service-api';
 import {
   KitchenServiceApi,
   KitchenServiceHandlers,
-  Ticket,
-  TicketDetails,
-  TicketNotFound,
   TicketConfirmed,
   TicketCreated,
 } from '@ftgo/kitchen-service-api';
 
 import { TicketRepository } from './ticket.repository';
+import { TicketDetails } from './entities';
 
 @restate.service<KitchenServiceApi>()
 export class KitchenService implements KitchenServiceHandlers {
@@ -22,49 +19,37 @@ export class KitchenService implements KitchenServiceHandlers {
     private readonly ctx: RestateServiceContext,
   ) {}
 
+  // @ts-expect-error invalid number of arguments
   @(restate.event<RestaurantCreatedEvent>().handler())
-  async createMenu({ restaurant }: RestaurantCreatedEvent): Promise<void> {}
-
-  @(restate.event<RestaurantCreatedEvent>().handler())
-  async reviseMenu({ restaurant }: RestaurantCreatedEvent): Promise<void> {}
+  async createMenu({ restaurantId }: RestaurantCreatedEvent): Promise<void> {}
 
   @restate.handler()
-  async beginCancelTicket(restaurantId: UUID, orderId: UUID): Promise<Ticket> {}
-
-  @restate.handler()
-  async cancelTicket(id: UUID): Promise<Ticket> {
-    const ticket = await this.ticket.find({ id });
-    if (!ticket) {
-      throw new TicketNotFound(id);
-    }
-    ticket.cancel();
-    await this.ticket.save(ticket);
-    await this.ctx.rejectAwakeable(
-      ticket.confirmCreateAwakeableId!,
-      CreateOrderSagaState.CANCELLED,
-    );
-    return ticket;
+  async beginCancelTicket(restaurantId: UUID, orderId: UUID): Promise<void> {
+    throw new Error('Not yet implemented');
   }
 
   @restate.handler()
-  async confirmCancelTicket(
-    restaurantId: UUID,
-    orderId: UUID,
-  ): Promise<Ticket> {}
+  async rejectTicket(id: UUID, reason: string): Promise<void> {
+    const ticket = await this.ticket.findById(id);
+    ticket.reject(reason);
+    await this.ticket.save(ticket);
+    await this.ctx.rejectAwakeable(ticket.confirmCreateAwakeableId!, reason);
+  }
 
   @restate.handler()
-  async confirmTicket(id: UUID, readyAt: Date): Promise<Ticket> {
-    const ticket = await this.ticket.find({ id });
-    if (!ticket) {
-      throw new TicketNotFound(id);
-    }
+  async confirmCancelTicket(restaurantId: UUID, orderId: UUID): Promise<void> {
+    throw new Error('Not yet implemented');
+  }
+
+  @restate.handler()
+  async confirmTicket(id: UUID, readyAt: Date): Promise<void> {
+    const ticket = await this.ticket.findById(id);
     ticket.confirm();
     await this.ticket.save(ticket);
     await this.ctx.resolveAwakeable<TicketConfirmed>(
       ticket.confirmCreateAwakeableId!,
       new TicketConfirmed(readyAt),
     );
-    return ticket;
   }
 
   @restate.handler()
@@ -88,5 +73,7 @@ export class KitchenService implements KitchenServiceHandlers {
   async undoBeginCancelTicket(
     restaurantId: UUID,
     orderId: UUID,
-  ): Promise<Ticket> {}
+  ): Promise<void> {
+    throw new Error('Not yet implemented');
+  }
 }

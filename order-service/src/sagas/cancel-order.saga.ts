@@ -27,7 +27,7 @@ export class CancelOrderSaga extends Saga<CancelOrderSagaData> {
   constructor(
     private readonly order: OrderServiceApi,
     private readonly kitchen: KitchenServiceApi,
-    private readonly accounting: PaymentServiceApi,
+    private readonly payment: PaymentServiceApi,
   ) {
     super();
   }
@@ -48,16 +48,11 @@ export class CancelOrderSaga extends Saga<CancelOrderSagaData> {
     return this.kitchen.undoBeginCancelTicket(restaurantId, orderId);
   }
 
-  reverseAuthorization({
-    customerId,
-    orderId,
-    orderTotal,
-  }: CancelOrderSagaData) {
-    return this.accounting.reverseAuthorization(
-      customerId,
-      orderId,
-      orderTotal,
-    );
+  reverseAuthorization({ paymentId }: CancelOrderSagaData) {
+    if (!paymentId) {
+      throw new Error('Missing payment id');
+    }
+    return this.payment.reverseAuthorization(paymentId);
   }
 
   confirmCancelTicket({ restaurantId, orderId }: CancelOrderSagaData) {

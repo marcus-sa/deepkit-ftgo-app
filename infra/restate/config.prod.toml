@@ -6,7 +6,3 @@ storage-low-priority-bg-threads = 1
 default-thread-pool-size = 1
 rocksdb-bg-threads = 1
 bootstrap-num-partitions = 1
-
-[worker.invoker.retry-policy]
-initial-interval = "100ms"
-max-attempts = 5

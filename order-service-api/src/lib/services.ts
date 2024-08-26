@@ -1,30 +1,23 @@
-import { restate, RestateService } from 'deepkit-restate';
+import { RestateService } from 'deepkit-restate';
 import { UUID } from '@deepkit/type';
 
-import { Money } from '@ftgo/common';
-import {
-  Restaurant,
-  RestaurantCreatedEvent,
-  RestaurantMenu,
-} from '@ftgo/restaurant-service-api';
+import { RestaurantCreatedEvent } from '@ftgo/restaurant-service-api';
 
-import { Order, OrderDetails } from './entities';
-import { CreateOrderRequest } from './dtos';
+import { OrderDetails } from './entities';
 import {
   OrderApproved,
-  OrderMinimumNotMetException,
+  OrderMinimumNotMet,
   OrderNotFound,
   OrderRejected,
 } from './replies';
 
 export interface OrderServiceHandlers {
-  create(orderId: UUID, details: OrderDetails): Promise<Order>;
-  get(id: UUID): Promise<Order>;
-  beginCancel(id: UUID): Promise<Order>;
-  undoBeginCancel(id: UUID): Promise<Order>;
-  undoCancel(id: UUID): Promise<Order>;
-  cancel(id: UUID): Promise<Order>;
-  confirmCancel(id: UUID): Promise<Order>;
+  create(orderId: UUID, details: OrderDetails): Promise<UUID>;
+  beginCancel(id: UUID): Promise<void>;
+  undoBeginCancel(id: UUID): Promise<void>;
+  undoCancel(id: UUID): Promise<void>;
+  cancel(id: UUID): Promise<void>;
+  confirmCancel(id: UUID): Promise<void>;
   reject(id: UUID): Promise<OrderRejected>;
   approve(id: UUID): Promise<OrderApproved>;
   createMenu(event: RestaurantCreatedEvent): Promise<void>;
@@ -34,5 +27,5 @@ export interface OrderServiceHandlers {
 export type OrderServiceApi = RestateService<
   'Order',
   OrderServiceHandlers,
-  [OrderNotFound, OrderMinimumNotMetException]
+  [OrderNotFound, OrderMinimumNotMet]
 >;

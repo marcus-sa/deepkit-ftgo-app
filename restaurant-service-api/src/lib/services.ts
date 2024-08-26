@@ -1,10 +1,12 @@
 import { RestateService } from 'deepkit-restate';
+import { UUID } from '@deepkit/type';
 
-import { Restaurant } from './entities';
-import { CreateRestaurantRequest } from './dtos';
+import { Address } from '@ftgo/common';
+
+import { Menu } from './types';
 
 export interface RestaurantServiceHandlers {
-  create(request: CreateRestaurantRequest): Promise<Restaurant>;
+  create(name: string, address: Address, menu: Menu): Promise<UUID>;
 }
 
 export type RestaurantServiceApi = RestateService<

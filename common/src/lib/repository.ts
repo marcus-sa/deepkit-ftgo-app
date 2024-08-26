@@ -1,9 +1,11 @@
 import { ClassType } from '@deepkit/core';
 import {
+  cast,
   ChangesInterface,
   DeepPartial,
   resolveRuntimeType,
   TypeClass,
+  deserialize,
 } from '@deepkit/type';
 import { RestateContextStorage, RestateCustomContext } from 'deepkit-restate';
 import { DatabaseQueryModel, OrmEntity } from '@deepkit/orm';
@@ -57,7 +59,13 @@ export class RestateRepository<E extends OrmEntity> {
 
   async create(...args: ConstructorParameters<ClassType<E>>): Promise<E> {
     return await this.#ctx.run<E>(async () => {
-      const et = new this.#type.classType(...args);
+      const et = deserialize<E>(
+        new this.#type.classType(...args),
+        undefined,
+        undefined,
+        undefined,
+        this.#type,
+      );
       await this.database.persist(et);
       return et;
     }, this.#type);

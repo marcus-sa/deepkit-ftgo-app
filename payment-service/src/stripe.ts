@@ -11,3 +11,5 @@ export class Stripe extends _Stripe {
     });
   }
 }
+
+export const { StripeCardError } = _Stripe.errors;

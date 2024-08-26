@@ -1,5 +1,5 @@
 base-dir = "/var/lib/restate"
 
 [worker.invoker.retry-policy]
-initial-interval = "50ms"
+initial-interval = "100ms"
 max-attempts = 3

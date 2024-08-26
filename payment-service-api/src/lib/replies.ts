@@ -1,4 +1,4 @@
-import { UUID } from '@deepkit/type';
+import { entity, UUID } from '@deepkit/type';
 
 export class PaymentAuthorized {
   constructor(public readonly paymentId: UUID) {}
@@ -23,7 +23,7 @@ export class PaymentNotFound extends Error {
   }
 }
 
-export class StripeCustomerNotFound extends Error {
+export class PaymentCustomerNotFound extends Error {
   constructor(public readonly customerId: UUID) {
     super();
   }

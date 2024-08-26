@@ -42,8 +42,6 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     .onReply<PaymentAuthorized>(this.handlePaymentAuthorized)
     .compensate(this.reversePaymentAuthorization)
     .step()
-    .invoke(this.test)
-    .step()
     .invoke(this.createTicket)
     .onReply<TicketCreated>(this.handleTicketCreated)
     // TODO: should this be done when the kitchen rejects the ticket?
@@ -107,10 +105,6 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     return this.payment.reverseAuthorization(paymentId);
   }
 
-  test() {
-    console.log('test');
-  }
-
   createTicket({
     orderDetails: { lineItems, restaurantId },
     orderId,
@@ -129,7 +123,6 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     data: Writable<CreateOrderSagaData>,
     { ticketId }: TicketCreated,
   ) {
-    console.log('handleTicketCreated');
     data.state = CreateOrderSagaState.WAITING_FOR_CONFIRMATION;
     data.ticketId = ticketId;
   }
@@ -138,11 +131,10 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     if (!ticketId) {
       throw new Error('Missing ticket id');
     }
-    return this.kitchen.cancelTicket(ticketId);
+    return this.kitchen.rejectTicket(ticketId, 'Unknown');
   }
 
   async waitForTicketConfirmation(data: Writable<CreateOrderSagaData>) {
-    console.log('waitForTicketConfirmation');
     await this.confirmTicketAwakeable!.promise;
     data.state = CreateOrderSagaState.CONFIRMED;
   }

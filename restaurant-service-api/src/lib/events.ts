@@ -1,5 +1,5 @@
-import { Restaurant } from './entities';
+import { UUID } from '@deepkit/type';
 
 export class RestaurantCreatedEvent {
-  constructor(readonly restaurant: Restaurant) {}
+  constructor(public readonly restaurantId: UUID) {}
 }

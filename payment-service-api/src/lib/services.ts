@@ -1,13 +1,13 @@
 import { RestateService } from 'deepkit-restate';
-import { UUID } from '@deepkit/type';
+import { float, UUID } from '@deepkit/type';
 
 import { Money } from '@ftgo/common';
 
-import { Payment } from './entities';
+import { PaymentCustomer } from './entities';
 import {
   PaymentAuthorizationFailed,
   PaymentAuthorized,
-  StripeCustomerNotFound,
+  PaymentCustomerNotFound,
 } from './replies';
 
 export interface PaymentServiceHandlers {
@@ -17,10 +17,11 @@ export interface PaymentServiceHandlers {
     orderTotal: Money,
   ): Promise<PaymentAuthorized>;
   reverseAuthorization(paymentId: UUID): Promise<PaymentAuthorized>;
+  getCustomer(customerId: UUID): Promise<PaymentCustomer>;
 }
 
 export type PaymentServiceApi = RestateService<
   'Payment',
   PaymentServiceHandlers,
-  [Payment, PaymentAuthorizationFailed, StripeCustomerNotFound]
+  [PaymentAuthorizationFailed, PaymentCustomerNotFound]
 >;

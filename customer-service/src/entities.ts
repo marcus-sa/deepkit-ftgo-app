@@ -1,30 +1,19 @@
-import {
-  Email,
-  entity,
-  JSONPartial,
-  PrimaryKey,
-  Unique,
-  uuid,
-  UUID,
-} from '@deepkit/type';
+import { Email, entity, PrimaryKey, Unique, uuid, UUID } from '@deepkit/type';
 import { Writable } from 'type-fest';
 
 import { PersonName } from '@ftgo/common';
-
-import { CustomerDisabled } from './replies';
+import { CustomerDisabled } from '@ftgo/customer-service-api';
 
 @entity.name('customer')
 export class Customer {
   readonly id: UUID & PrimaryKey = uuid();
   readonly disabled: boolean = false;
 
-  readonly name: PersonName;
-  readonly email: Email & Unique;
-  readonly phoneNumber?: string & Unique;
-
-  static create(data: JSONPartial<Customer>) {
-    return Object.assign(new Customer(), data);
-  }
+  constructor(
+    public readonly name: PersonName,
+    public readonly email: Email & Unique,
+    public readonly phoneNumber?: string & Unique,
+  ) {}
 
   assertEnabled(): void {
     if (!this.disabled) {

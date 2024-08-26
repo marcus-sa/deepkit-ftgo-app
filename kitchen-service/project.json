@@ -4,7 +4,7 @@
   "projectType": "application",
   "prefix": "ftgo",
   "sourceRoot": "kitchen-service/src",
-  "tags": [],
+  "tags": ["app:service"],
   "targets": {
     "build": {
       "executor": "@nx/vite:build",
@@ -38,7 +38,8 @@
           "watch": true
         },
         "production": {
-          "buildTarget": "kitchen-service:build:production"
+          "buildTarget": "kitchen-service:build:production",
+          "args": ["server:start"]
         },
         "staging": {
           "buildTarget": "kitchen-service:build:staging"

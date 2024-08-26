@@ -1,7 +1,9 @@
 import { UUID } from '@deepkit/type';
 
 import { RestateRepository } from '@ftgo/common';
-import { Payment, PaymentNotFound } from '@ftgo/payment-service-api';
+import { PaymentNotFound } from '@ftgo/payment-service-api';
+
+import { Payment } from './entities';
 
 export class PaymentRepository extends RestateRepository<Payment> {
   /**

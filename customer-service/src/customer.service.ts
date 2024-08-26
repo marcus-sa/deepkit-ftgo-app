@@ -1,11 +1,9 @@
 import { restate, RestateEventsPublisher } from 'deepkit-restate';
-import { UUID } from '@deepkit/type';
+import { cast, Email, float, UUID } from '@deepkit/type';
 
 import { Money, PersonName } from '@ftgo/common';
 import {
-  Customer,
   CustomerCreatedEvent,
-  CustomerNotFound,
   CustomerServiceApi,
   CustomerServiceHandlers,
   CustomerVerificationFailed,
@@ -16,15 +14,17 @@ import { CustomerRepository } from './customer.repository';
 @restate.service<CustomerServiceApi>()
 export class CustomerService implements CustomerServiceHandlers {
   constructor(
-    private readonly consumer: CustomerRepository,
+    private readonly customer: CustomerRepository,
     private readonly events: RestateEventsPublisher,
   ) {}
 
   @restate.handler()
-  async create(name: PersonName): Promise<UUID> {
-    const consumer = await this.consumer.create(name);
-    await this.events.publish([new CustomerCreatedEvent(consumer)]);
-    return consumer.id;
+  async create(name: PersonName, email: Email): Promise<UUID> {
+    const customer = await this.customer.create(name, email);
+    await this.events.publish<[CustomerCreatedEvent]>([
+      cast<CustomerCreatedEvent>(customer),
+    ]);
+    return customer.id;
   }
 
   @restate.handler()
@@ -33,10 +33,7 @@ export class CustomerService implements CustomerServiceHandlers {
     orderId: UUID,
     orderTotal: Money,
   ): Promise<void> {
-    const consumer = await this.consumer.find({ id: customerId });
-    if (!consumer) {
-      throw new CustomerNotFound(customerId);
-    }
+    const consumer = await this.customer.findById(customerId);
     // TODO: validation
     throw new CustomerVerificationFailed(customerId);
   }
