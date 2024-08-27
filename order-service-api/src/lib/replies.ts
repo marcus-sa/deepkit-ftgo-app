@@ -12,6 +12,10 @@ export class OrderNotFound extends Error {
   }
 }
 
+export class OrderCreatedEvent {
+  constructor(public readonly orderId: UUID) {}
+}
+
 export class OrderApproved {}
 
 export class OrderRejected {}

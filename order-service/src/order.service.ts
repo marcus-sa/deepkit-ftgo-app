@@ -1,10 +1,11 @@
-import { restate } from 'deepkit-restate';
+import { restate, RestateEventsPublisher } from 'deepkit-restate';
 import { UUID } from '@deepkit/type';
 
 import { RestaurantCreatedEvent } from '@ftgo/restaurant-service-api';
 import {
-  CreateOrderRequest,
   OrderApproved,
+  OrderCreatedEvent,
+  OrderDetails,
   OrderRejected,
   OrderServiceApi,
   OrderServiceHandlers,
@@ -14,7 +15,10 @@ import { OrderRepository } from './order.repository';
 
 @restate.service<OrderServiceApi>()
 export class OrderService implements OrderServiceHandlers {
-  constructor(private readonly order: OrderRepository) {}
+  constructor(
+    private readonly order: OrderRepository,
+    private readonly events: RestateEventsPublisher,
+  ) {}
 
   // @ts-expect-error invalid number of arguments
   @(restate.event<RestaurantCreatedEvent>().handler())
@@ -36,7 +40,10 @@ export class OrderService implements OrderServiceHandlers {
 
   @restate.handler()
   async reject(id: UUID): Promise<OrderRejected> {
-    throw new Error('Not yet implemented');
+    const order = await this.order.findById(id);
+    order.noteRejected();
+    await this.order.save(order);
+    return new OrderRejected();
   }
 
   @restate.handler()
@@ -62,7 +69,19 @@ export class OrderService implements OrderServiceHandlers {
   }
 
   @restate.handler()
-  async create(request: CreateOrderRequest): Promise<UUID> {
-    throw new Error('Not yet implemented');
+  async create(
+    orderId: UUID,
+    { customerId, restaurantId, lineItems }: OrderDetails,
+  ): Promise<UUID> {
+    const order = await this.order.create(
+      orderId,
+      customerId,
+      restaurantId,
+      lineItems,
+    );
+    await this.events.publish<[OrderCreatedEvent]>([
+      new OrderCreatedEvent(order.id),
+    ]);
+    return order.id;
   }
 }

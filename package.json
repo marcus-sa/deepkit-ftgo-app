@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "postinstall": "deepkit-type-install && lefthook install",
-    "start": "nx run-many -t=serve --projects=tag:app:service,tag:app:server --watch=false"
+    "start": "nx run-many -t=serve --projects=tag:app:service,tag:app:server --watch=false --inspect=false"
   },
   "dependencies": {
     "@deepkit/app": "^1.0.1-alpha.153",

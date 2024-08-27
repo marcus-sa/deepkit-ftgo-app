@@ -1,6 +1,7 @@
 import { beforeEach, describe, test } from 'vitest';
 import { UUID, uuid } from '@deepkit/type';
 import { faker } from '@faker-js/faker';
+import { sleep } from '@deepkit/core';
 
 import { Money } from '@ftgo/common';
 import { CreateOrderSagaApi, OrderDetails } from '@ftgo/order-service-api';
@@ -51,7 +52,15 @@ describe('create order', () => {
       orderId,
       orderDetails,
     });
-  });
+
+    console.log({ status });
+
+    await sleep(5);
+
+    const state = await createOrderSaga.state(orderId);
+
+    console.log({ state });
+  }, 10_000);
 
   test('payment fails to be authorized', async () => {});
 });

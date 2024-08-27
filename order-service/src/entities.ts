@@ -35,18 +35,20 @@ export enum OrderState {
 
 @entity.name('order')
 export class Order {
-  readonly id: UUID & PrimaryKey;
   readonly state: OrderState = OrderState.APPROVAL_PENDING;
-  readonly paymentInformation?: Embedded<PaymentInformation>;
-  readonly orderMinimum: Embedded<Money> = new Money(Number.MAX_SAFE_INTEGER);
+  readonly orderMinimum: Money = new Money(Number.MAX_SAFE_INTEGER);
+  readonly paymentInformation?: PaymentInformation;
+  readonly lineItems: OrderLineItems;
+  readonly rejectedAt?: Date;
 
-  readonly customerId: UUID;
-  readonly restaurantId: UUID;
-  readonly deliveryInformation: Embedded<DeliveryInformation>;
-  readonly lineItems: Embedded<OrderLineItems>;
-
-  static create(data: JSONPartial<Order>): Order {
-    return Object.assign(new Order(), data);
+  constructor(
+    public readonly id: UUID & PrimaryKey,
+    public readonly customerId: UUID,
+    public readonly restaurantId: UUID,
+    lineItems: readonly OrderLineItem[],
+    public readonly deliveryInformation?: DeliveryInformation,
+  ) {
+    this.lineItems = new OrderLineItems(lineItems);
   }
 
   cancel(this: Writable<this>): void {
@@ -82,6 +84,7 @@ export class Order {
       throw new UnsupportedStateTransitionException(this.state);
     }
     this.state = OrderState.REJECTED;
+    this.rejectedAt = new Date();
   }
 
   noteReservingPayment() {}
@@ -130,14 +133,11 @@ export class Order {
 @entity.name('order-line-item')
 export class OrderLineItem {
   readonly quantity: integer & Positive;
-  readonly menuItemId: UUID;
-  readonly orderId: Order & Reference;
+  // TODO
+  readonly menuItemId?: UUID;
+  // readonly orderId: Order & Reference;
   readonly name: string;
   readonly price: Money;
-
-  static create(data: JSONPartial<OrderLineItem>) {
-    return Object.assign(new OrderLineItem(), data);
-  }
 
   deltaForChangedQuantity(newQuantity: integer & Positive): Money {
     return this.price.multiply(newQuantity - this.quantity);
@@ -150,7 +150,8 @@ export class OrderLineItem {
 
 export class OrderLineItems {
   constructor(
-    public readonly lineItems: readonly OrderLineItem[] & BackReference,
+    // public readonly lineItems: readonly OrderLineItem[] & BackReference,
+    public readonly lineItems: readonly OrderLineItem[],
   ) {}
 
   changeToOrderTotal(orderRevision: OrderRevision) {
