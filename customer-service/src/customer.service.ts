@@ -1,5 +1,5 @@
 import { restate, RestateEventsPublisher } from 'deepkit-restate';
-import { cast, Email, float, UUID } from '@deepkit/type';
+import { cast, Email, UUID } from '@deepkit/type';
 
 import { Money, PersonName } from '@ftgo/common';
 import {

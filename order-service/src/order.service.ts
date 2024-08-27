@@ -1,10 +1,9 @@
-import { restate, RestateEventsPublisher } from 'deepkit-restate';
+import { restate } from 'deepkit-restate';
 import { UUID } from '@deepkit/type';
 
 import { RestaurantCreatedEvent } from '@ftgo/restaurant-service-api';
 import {
   OrderApproved,
-  OrderCreatedEvent,
   OrderDetails,
   OrderRejected,
   OrderServiceApi,
@@ -15,10 +14,7 @@ import { OrderRepository } from './order.repository';
 
 @restate.service<OrderServiceApi>()
 export class OrderService implements OrderServiceHandlers {
-  constructor(
-    private readonly order: OrderRepository,
-    private readonly events: RestateEventsPublisher,
-  ) {}
+  constructor(private readonly order: OrderRepository) {}
 
   // @ts-expect-error invalid number of arguments
   @(restate.event<RestaurantCreatedEvent>().handler())
@@ -79,9 +75,6 @@ export class OrderService implements OrderServiceHandlers {
       restaurantId,
       lineItems,
     );
-    await this.events.publish<[OrderCreatedEvent]>([
-      new OrderCreatedEvent(order.id),
-    ]);
     return order.id;
   }
 }

@@ -1,7 +1,10 @@
-import { UUID } from '@deepkit/type';
+import { entity, UUID } from '@deepkit/type';
 
-export class TicketNotFound {
-  constructor(public readonly ticketId: UUID) {}
+@entity.name('@error/TicketNotFound')
+export class TicketNotFound extends Error {
+  constructor(public readonly ticketId: UUID) {
+    super();
+  }
 }
 
 export class TicketConfirmed {

@@ -4,12 +4,7 @@ import { UUID } from '@deepkit/type';
 import { RestaurantCreatedEvent } from '@ftgo/restaurant-service-api';
 
 import { OrderDetails } from './entities';
-import {
-  OrderApproved,
-  OrderMinimumNotMet,
-  OrderNotFound,
-  OrderRejected,
-} from './replies';
+import { OrderApproved, OrderRejected } from './replies';
 
 export interface OrderServiceHandlers {
   create(orderId: UUID, details: OrderDetails): Promise<UUID>;
@@ -24,8 +19,4 @@ export interface OrderServiceHandlers {
   reviseMenu(event: RestaurantCreatedEvent): Promise<void>;
 }
 
-export type OrderServiceApi = RestateService<
-  'Order',
-  OrderServiceHandlers,
-  [OrderNotFound, OrderMinimumNotMet]
->;
+export type OrderServiceApi = RestateService<'Order', OrderServiceHandlers>;

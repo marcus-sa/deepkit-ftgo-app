@@ -1,7 +1,7 @@
 import { RestateService } from 'deepkit-restate';
 import { UUID } from '@deepkit/type';
 
-import { TicketCreated, TicketNotFound } from './replies';
+import { TicketCreated } from './replies';
 import { TicketDetails } from './types';
 
 export interface KitchenServiceHandlers {
@@ -20,6 +20,5 @@ export interface KitchenServiceHandlers {
 
 export type KitchenServiceApi = RestateService<
   'Kitchen',
-  KitchenServiceHandlers,
-  [TicketNotFound]
+  KitchenServiceHandlers
 >;

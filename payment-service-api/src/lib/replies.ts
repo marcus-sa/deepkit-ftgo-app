@@ -8,6 +8,7 @@ export class PaymentAuthorizationReversed {
   constructor(public readonly paymentId: UUID) {}
 }
 
+@entity.name('@error/PaymentAuthorizationFailed')
 export class PaymentAuthorizationFailed extends Error {
   constructor(
     public readonly customerId: UUID,
@@ -17,12 +18,14 @@ export class PaymentAuthorizationFailed extends Error {
   }
 }
 
+@entity.name('@error/PaymentNotFound')
 export class PaymentNotFound extends Error {
   constructor(public readonly paymentId: UUID) {
     super();
   }
 }
 
+@entity.name('@error/PaymentCustomerNotFound')
 export class PaymentCustomerNotFound extends Error {
   constructor(public readonly customerId: UUID) {
     super();

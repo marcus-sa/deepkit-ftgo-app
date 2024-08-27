@@ -2,18 +2,17 @@ import { entity, UUID } from '@deepkit/type';
 
 import { LineItemQuantityChange, OrderRevision } from './entities';
 
+@entity.name('@error/OrderMinimumNotMet')
 export class OrderMinimumNotMet extends Error {}
 
+@entity.name('@error/OrderLineItemNotFound')
 export class OrderLineItemNotFound extends Error {}
 
+@entity.name('@error/OrderNotFound')
 export class OrderNotFound extends Error {
   constructor(public readonly orderId: UUID) {
     super();
   }
-}
-
-export class OrderCreatedEvent {
-  constructor(public readonly orderId: UUID) {}
 }
 
 export class OrderApproved {}

@@ -1,4 +1,4 @@
 import { entity } from '@deepkit/type';
 
-@entity.name('@error/unsupported-state-transition-exception')
+@entity.name('@error/UnsupportedStateTransitionException')
 export class UnsupportedStateTransitionException extends Error {}

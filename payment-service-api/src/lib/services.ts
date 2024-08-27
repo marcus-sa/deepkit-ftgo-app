@@ -1,14 +1,10 @@
 import { RestateService } from 'deepkit-restate';
-import { float, UUID } from '@deepkit/type';
+import { UUID } from '@deepkit/type';
 
 import { Money } from '@ftgo/common';
 
 import { PaymentCustomer } from './entities';
-import {
-  PaymentAuthorizationFailed,
-  PaymentAuthorized,
-  PaymentCustomerNotFound,
-} from './replies';
+import { PaymentAuthorized } from './replies';
 
 export interface PaymentServiceHandlers {
   authorize(
@@ -22,6 +18,5 @@ export interface PaymentServiceHandlers {
 
 export type PaymentServiceApi = RestateService<
   'Payment',
-  PaymentServiceHandlers,
-  [PaymentAuthorizationFailed, PaymentCustomerNotFound]
+  PaymentServiceHandlers
 >;
