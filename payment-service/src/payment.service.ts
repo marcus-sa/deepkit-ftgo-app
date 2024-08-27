@@ -95,7 +95,11 @@ export class PaymentService implements PaymentServiceHandlers {
     );
 
     if (error) {
-      throw new PaymentAuthorizationFailed(customerId, error.message);
+      throw new PaymentAuthorizationFailed(
+        payment.id,
+        customerId,
+        error.message,
+      );
     }
 
     return new PaymentAuthorized(payment.id);

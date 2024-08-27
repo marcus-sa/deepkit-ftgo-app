@@ -1,7 +1,7 @@
 import { RestateService } from 'deepkit-restate';
 import { UUID } from '@deepkit/type';
 
-import { TicketCreated } from './replies';
+import { TicketCancelled, TicketCreated } from './replies';
 import { TicketDetails } from './types';
 
 export interface KitchenServiceHandlers {
@@ -13,6 +13,7 @@ export interface KitchenServiceHandlers {
   ): Promise<TicketCreated>;
   confirmTicket(id: UUID, readyAt: Date): Promise<void>;
   rejectTicket(id: UUID, reason: string): Promise<void>;
+  cancelTicket(id: UUID, reason: string): Promise<TicketCancelled>;
   beginCancelTicket(restaurantId: UUID, orderId: UUID): Promise<void>;
   undoBeginCancelTicket(restaurantId: UUID, orderId: UUID): Promise<void>;
   confirmCancelTicket(restaurantId: UUID, orderId: UUID): Promise<void>;

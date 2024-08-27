@@ -40,7 +40,7 @@ export class Ticket {
     public readonly restaurantId: UUID,
     public readonly orderId: UUID,
     public readonly details: TicketDetails,
-    public readonly confirmCreateAwakeableId: string,
+    public readonly confirmAwakeableId: string,
   ) {}
 
   reject(this: Writable<this>, reason: string) {

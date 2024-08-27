@@ -11,6 +11,13 @@ export class TicketConfirmed {
   constructor(public readonly readyAt: Date) {}
 }
 
+export class TicketCancelled {
+  constructor(public readonly ticketId: UUID) {}
+}
+
+@entity.name('@error/TicketCancellationFailed')
+export class TicketCancellationFailed extends Error {}
+
 export class TicketCreated {
   constructor(public readonly ticketId: UUID) {}
 }

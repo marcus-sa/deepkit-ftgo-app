@@ -4,9 +4,10 @@ import { cast, Email, UUID } from '@deepkit/type';
 import { Money, PersonName } from '@ftgo/common';
 import {
   CustomerCreatedEvent,
+  CustomerOrderValidated,
+  CustomerOrderValidationFailed,
   CustomerServiceApi,
   CustomerServiceHandlers,
-  CustomerVerificationFailed,
 } from '@ftgo/customer-service-api';
 
 import { CustomerRepository } from './customer.repository';
@@ -32,9 +33,10 @@ export class CustomerService implements CustomerServiceHandlers {
     customerId: UUID,
     orderId: UUID,
     orderTotal: Money,
-  ): Promise<void> {
-    const consumer = await this.customer.findById(customerId);
+  ): Promise<CustomerOrderValidated> {
+    const customer = await this.customer.findById(customerId);
     // TODO: validation
-    throw new CustomerVerificationFailed(customerId);
+    // throw new CustomerOrderValidationFailed(customerId);
+    return new CustomerOrderValidated();
   }
 }

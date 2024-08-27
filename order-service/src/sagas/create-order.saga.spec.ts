@@ -1,3 +1,4 @@
+import { beforeEach, describe, test, expect } from 'vitest';
 import { uuid } from '@deepkit/type';
 import {
   createClassProxy,
@@ -7,22 +8,17 @@ import {
   SagaTestManager,
   RestateInMemoryContext,
 } from 'deepkit-restate';
-import {
-  beforeEach,
-  describe,
-  Mock,
-  test,
-  vi,
-  expect,
-  afterEach,
-} from 'vitest';
 
 import {
   KitchenServiceApi,
+  TicketCancelled,
   TicketConfirmed,
   TicketCreated,
 } from '@ftgo/kitchen-service-api';
-import { CustomerServiceApi } from '@ftgo/customer-service-api';
+import {
+  CustomerOrderValidationFailed,
+  CustomerServiceApi,
+} from '@ftgo/customer-service-api';
 import { Money } from '@ftgo/common';
 import {
   CreateOrderSagaData,
@@ -45,6 +41,10 @@ describe('CreateOrderSaga', () => {
   let manager: SagaTestManager<CreateOrderSagaData, CreateOrderSaga>;
   let data: CreateOrderSagaData;
 
+  const orderId = uuid();
+  const customerId = uuid();
+  const restaurantId = uuid();
+
   beforeEach(() => {
     ctx = new RestateInMemoryContext() as unknown as RestateSagaContext;
 
@@ -58,10 +58,10 @@ describe('CreateOrderSaga', () => {
     manager = new SagaTestManager(ctx, saga);
 
     data = Object.assign(new CreateOrderSagaData(), {
-      orderId: '69181046-3f54-42b1-811b-f423846b0f0f',
+      orderId,
       orderDetails: {
-        restaurantId: 'd5237427-9e29-426a-b679-ff8d10262014',
-        customerId: '929edf6a-497e-4bf9-ab00-48adeeb1d8ef',
+        restaurantId,
+        customerId,
         lineItems: [],
         orderTotal: new Money(10),
       },
@@ -73,78 +73,112 @@ describe('CreateOrderSaga', () => {
       manager.mockInvocationResponse('create', () => success());
     });
 
-    // test('then validate customer order', () => {});
-
-    describe('and customer order failed to be validated', () => {
-      beforeEach(() => {
-        manager.mockInvocationResponse('validate', () => failure());
-      });
-
-      test('then order was rejected', async () => {
-        manager.mockCompensationResponse('reject', () =>
-          success<OrderRejected>(new OrderRejected()),
-        );
-
-        manager.runAfterReplyHandler('handleRejected', data => {
-          expect(data.state).toBe(CreateOrderSagaState.REJECTED);
-        });
-
-        await manager.start(data);
-
-        await manager.waitForHandlersToHaveBeenCalled();
-      });
-    });
-
-    describe('and customer order has been validated', () => {
-      beforeEach(() => {
-        manager.mockInvocationResponse('validate', () => success());
-      });
-
-      describe('and payment failed to be authorized', () => {
+    describe('and order has been created', () => {
+      describe('and customer order failed to be validated', () => {
         beforeEach(() => {
-          manager.mockInvocationResponse('authorizePayment', () =>
-            failure<PaymentAuthorizationFailed>(
-              new PaymentAuthorizationFailed(uuid(), 'Test'),
+          manager.mockInvocationResponse('validate', () =>
+            failure<CustomerOrderValidationFailed>(
+              new CustomerOrderValidationFailed(customerId, orderId),
             ),
           );
         });
-      });
 
-      describe('and payment has been authorized', () => {
-        const paymentId = '64b1650f-6be3-4b3a-9749-ca6534128126';
-
-        beforeEach(() => {
-          manager.mockInvocationResponse('authorizePayment', () =>
-            success<PaymentAuthorized>(new PaymentAuthorized(paymentId)),
-          );
-        });
-
-        test('then payment authorization has been handled', async () => {
-          manager.runAfterReplyHandler('handlePaymentAuthorized', data => {
-            expect(data.state).toBe(CreateOrderSagaState.PAYMENT_AUTHORIZED);
-            expect(data.paymentId).toBe(paymentId);
-          });
-
-          await manager.start(data);
-
-          await manager.waitForHandlersToHaveBeenCalled();
-        });
-
-        describe('and ticket has been created', () => {
-          const ticketId = 'f3a52feb-eb2f-4985-83c7-12dbfc0056ed';
-
+        describe('when handled', () => {
           beforeEach(() => {
-            manager.mockInvocationResponse('createTicket', () =>
-              success<TicketCreated>(new TicketCreated(ticketId)),
+            manager.runAfterReplyHandler(
+              'handleCustomerOrderValidationFailed',
+              data => {
+                expect(data.state).toBe(
+                  CreateOrderSagaState.CUSTOMER_VALIDATION_FAILED,
+                );
+              },
             );
           });
 
-          test('then ticket creation has been handled', async () => {
-            manager.runAfterReplyHandler('handleTicketCreated', data => {
-              expect(data.state).toBe(
-                CreateOrderSagaState.WAITING_FOR_CONFIRMATION,
+          test('then order was rejected', async () => {
+            manager.mockCompensationResponse('reject', () =>
+              success<OrderRejected>(new OrderRejected()),
+            );
+
+            manager.runAfterReplyHandler('handleRejected', data => {
+              expect(data.state).toBe(CreateOrderSagaState.REJECTED);
+              expect(data.rejectedState).toBe(
+                CreateOrderSagaState.CUSTOMER_VALIDATION_FAILED,
               );
-              expect(data.ticketId).toBe(ticketId);
+            });
+
+            await manager.start(data);
+
+            await manager.waitForHandlersToHaveBeenCalled();
+          });
+        });
+      });
+
+      describe('and customer order has been validated', () => {
+        beforeEach(() => {
+          manager.mockInvocationResponse('validate', () => success());
+        });
+
+        describe('and payment failed to be authorized', () => {
+          const paymentId = uuid();
+
+          beforeEach(() => {
+            manager.mockInvocationResponse('authorizePayment', () =>
+              failure<PaymentAuthorizationFailed>(
+                new PaymentAuthorizationFailed(
+                  paymentId,
+                  customerId,
+                  'Balance too low',
+                ),
+              ),
+            );
+          });
+
+          describe('when handled', () => {
+            beforeEach(() => {
+              manager.runAfterReplyHandler(
+                'handlePaymentAuthorizationFailed',
+                data => {
+                  expect(data.state).toBe(
+                    CreateOrderSagaState.PAYMENT_AUTHORIZATION_FAILED,
+                  );
+                  expect(data.paymentId).toBe(paymentId);
+                },
+              );
+            });
+
+            test('then order has been rejected', async () => {
+              manager.mockCompensationResponse('reject', () =>
+                success<OrderRejected>(new OrderRejected()),
+              );
+
+              manager.runAfterReplyHandler('handleRejected', data => {
+                expect(data.state).toBe(CreateOrderSagaState.REJECTED);
+                expect(data.rejectedState).toBe(
+                  CreateOrderSagaState.PAYMENT_AUTHORIZATION_FAILED,
+                );
+              });
+
+              await manager.start(data);
+
+              await manager.waitForHandlersToHaveBeenCalled();
+            });
+          });
+        });
+
+        describe('and payment has been authorized', () => {
+          const paymentId = uuid();
+
+          beforeEach(() => {
+            manager.mockInvocationResponse('authorizePayment', () =>
+              success<PaymentAuthorized>(new PaymentAuthorized(paymentId)),
+            );
+          });
+
+          test('then payment authorization has been handled', async () => {
+            manager.runAfterReplyHandler('handlePaymentAuthorized', data => {
+              expect(data.state).toBe(CreateOrderSagaState.PAYMENT_AUTHORIZED);
+              expect(data.paymentId).toBe(paymentId);
             });
 
             await manager.start(data);
@@ -152,68 +186,126 @@ describe('CreateOrderSaga', () => {
             await manager.waitForHandlersToHaveBeenCalled();
           });
 
-          describe('then wait for ticket confirmation', () => {
-            describe('when ticket has been rejected', () => {
-              beforeEach(() => {
-                manager.runAfterReplyHandler('handleTicketCreated', () => {
-                  ctx.rejectAwakeable(saga.confirmTicketAwakeable!.id, 'Test');
-                });
-              });
+          describe('and ticket has been created', () => {
+            const ticketId = 'f3a52feb-eb2f-4985-83c7-12dbfc0056ed';
 
-              test('then cancel ticket', async () => {
-                manager.mockCompensationResponse('cancelTicket', () =>
-                  success(),
-                );
-
-                await manager.start(data);
-
-                await manager.waitForHandlersToHaveBeenCalled();
-              });
-
-              describe('and ticket has been cancelled', () => {
-                test.todo('then reverse payment authorization');
-              });
+            beforeEach(() => {
+              manager.mockInvocationResponse('createTicket', () =>
+                success<TicketCreated>(new TicketCreated(ticketId)),
+              );
             });
 
-            describe('when ticket has been confirmed', () => {
-              beforeEach(() => {
-                manager.runAfterReplyHandler('handleTicketCreated', () => {
-                  ctx.resolveAwakeable(
-                    saga.confirmTicketAwakeable!.id,
-                    new TicketConfirmed(new Date()),
-                  );
-                });
+            test('then has been handled', async () => {
+              manager.runAfterReplyHandler('handleTicketCreated', data => {
+                expect(data.state).toBe(
+                  CreateOrderSagaState.WAITING_FOR_CONFIRMATION,
+                );
+                expect(data.ticketId).toBe(ticketId);
               });
 
-              test('then order state should be confirmed', async () => {
-                // manager.runAfterInvocation('waitForTicketConfirmation', (data) => {
-                //   expect(data.state).toBe(CreateOrderSagaState.CONFIRMED);
-                // });
-                manager.mockInvocationResponse('approve', data => {
-                  expect(data.state).toBe(CreateOrderSagaState.CONFIRMED);
-                  return success();
-                });
+              await manager.start(data);
 
-                await manager.start(data);
+              await manager.waitForHandlersToHaveBeenCalled();
+            });
 
-                await manager.waitForHandlersToHaveBeenCalled();
-              });
-
-              describe('and order has been approved', () => {
+            describe('then wait for ticket confirmation', () => {
+              describe('when ticket has been rejected', () => {
                 beforeEach(() => {
-                  manager.mockInvocationResponse('approve', () =>
-                    success<OrderApproved>(new OrderApproved()),
-                  );
+                  manager.runAfterReplyHandler('handleTicketCreated', () => {
+                    ctx.rejectAwakeable(
+                      saga.confirmTicketAwakeable!.id,
+                      'Test',
+                    );
+                  });
                 });
 
-                test('then handle order approval', async () => {
-                  manager.runAfterReplyHandler('handleApproved', data => {
-                    expect(data.state).toBe(CreateOrderSagaState.APPROVED);
+                test('then reverse payment authorization', () => {
+                  // manager.runAfterInvocation('waitForTicketConfirmation', (data) => {
+                  //   expect(data.state).toBe(CreateOrderSagaState.TICKET_REJECTED);
+                  // });
+                  manager.mockCompensationResponse(
+                    'reversePaymentAuthorization',
+                    () => {
+                      expect(data.state).toBe(
+                        CreateOrderSagaState.TICKET_REJECTED,
+                      );
+                      return success();
+                    },
+                  );
+                });
+              });
+
+              describe('when ticket has been confirmed', () => {
+                beforeEach(() => {
+                  manager.runAfterReplyHandler('handleTicketCreated', () => {
+                    ctx.resolveAwakeable(
+                      saga.confirmTicketAwakeable!.id,
+                      new TicketConfirmed(new Date()),
+                    );
+                  });
+                });
+
+                test('then order state should be confirmed', async () => {
+                  // manager.runAfterInvocation('waitForTicketConfirmation', (data) => {
+                  //   expect(data.state).toBe(CreateOrderSagaState.TICKET_CONFIRMED);
+                  // });
+                  manager.mockInvocationResponse('approve', data => {
+                    expect(data.state).toBe(
+                      CreateOrderSagaState.TICKET_CONFIRMED,
+                    );
+                    return success();
                   });
 
                   await manager.start(data);
 
                   await manager.waitForHandlersToHaveBeenCalled();
+                });
+
+                describe('and order has been approved', () => {
+                  beforeEach(() => {
+                    manager.mockInvocationResponse('approve', () =>
+                      success<OrderApproved>(new OrderApproved()),
+                    );
+                  });
+
+                  test('then has been handled', async () => {
+                    manager.runAfterReplyHandler('handleApproved', data => {
+                      expect(data.state).toBe(CreateOrderSagaState.APPROVED);
+                    });
+
+                    await manager.start(data);
+
+                    await manager.waitForHandlersToHaveBeenCalled();
+                  });
+                });
+
+                describe('and order failed to be approved', () => {
+                  beforeEach(() => {
+                    manager.mockInvocationResponse('approve', () => failure());
+                  });
+
+                  test('then cancel ticket', async () => {});
+
+                  describe('and ticket has been cancelled', () => {
+                    beforeEach(() => {
+                      manager.mockCompensationResponse('cancelTicket', () =>
+                        success<TicketCancelled>(new TicketCancelled(ticketId)),
+                      );
+                    });
+
+                    test('then has been handled', async () => {
+                      manager.runAfterReplyHandler(
+                        'handleTicketCancelled',
+                        data => {
+                          expect(data.state).toBe(
+                            CreateOrderSagaState.TICKET_CANCELLED,
+                          );
+                        },
+                      );
+                    });
+                  });
+
+                  describe.todo('and failed to cancel ticket');
                 });
               });
             });

@@ -7,10 +7,13 @@ export class CustomerNotFound extends Error {
   }
 }
 
-@entity.name('@error/CustomerVerificationFailed')
-export class CustomerVerificationFailed extends Error {
-  constructor(public readonly id: UUID) {
-    super();
+@entity.name('@error/CustomerOrderValidationFailed')
+export class CustomerOrderValidationFailed extends Error {
+  constructor(
+    public readonly customerId: UUID,
+    public readonly orderId: UUID,
+  ) {
+    super('Customer order failed to be validated');
   }
 }
 
@@ -20,3 +23,5 @@ export class CustomerDisabled extends Error {
     super();
   }
 }
+
+export class CustomerOrderValidated {}

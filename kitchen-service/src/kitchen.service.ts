@@ -1,10 +1,15 @@
-import { restate, RestateServiceContext } from 'deepkit-restate';
+import {
+  restate,
+  RestateEventsPublisher,
+  RestateServiceContext,
+} from 'deepkit-restate';
 import { UUID } from '@deepkit/type';
 
 import { RestaurantCreatedEvent } from '@ftgo/restaurant-service-api';
 import {
   KitchenServiceApi,
   KitchenServiceHandlers,
+  TicketCancelled,
   TicketConfirmed,
   TicketCreated,
 } from '@ftgo/kitchen-service-api';
@@ -24,6 +29,11 @@ export class KitchenService implements KitchenServiceHandlers {
   async createMenu({ restaurantId }: RestaurantCreatedEvent): Promise<void> {}
 
   @restate.handler()
+  async cancelTicket(id: UUID): Promise<TicketCancelled> {
+    return new TicketCancelled(id);
+  }
+
+  @restate.handler()
   async beginCancelTicket(restaurantId: UUID, orderId: UUID): Promise<void> {
     throw new Error('Not yet implemented');
   }
@@ -33,7 +43,7 @@ export class KitchenService implements KitchenServiceHandlers {
     const ticket = await this.ticket.findById(id);
     ticket.reject(reason);
     await this.ticket.save(ticket);
-    await this.ctx.rejectAwakeable(ticket.confirmCreateAwakeableId!, reason);
+    await this.ctx.rejectAwakeable(ticket.confirmAwakeableId!, reason);
   }
 
   @restate.handler()
@@ -47,7 +57,7 @@ export class KitchenService implements KitchenServiceHandlers {
     ticket.confirm();
     await this.ticket.save(ticket);
     await this.ctx.resolveAwakeable<TicketConfirmed>(
-      ticket.confirmCreateAwakeableId!,
+      ticket.confirmAwakeableId!,
       new TicketConfirmed(readyAt),
     );
   }
@@ -59,14 +69,15 @@ export class KitchenService implements KitchenServiceHandlers {
     details: TicketDetails,
     confirmAwakeableId: string,
   ): Promise<TicketCreated> {
-    // TODO: notify kitchen staff that a ticket has been created
     const ticket = await this.ticket.create(
       restaurantId,
       orderId,
       details,
       confirmAwakeableId,
     );
-    return new TicketCreated(ticket.id);
+    const ticketCreated = new TicketCreated(ticket.id);
+    // TODO: notify kitchen that ticket has been created by triggering novu
+    return ticketCreated;
   }
 
   @restate.handler()

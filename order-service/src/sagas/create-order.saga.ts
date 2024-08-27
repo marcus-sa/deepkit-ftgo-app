@@ -1,19 +1,25 @@
+import { assert, cast } from '@deepkit/type';
+import { Writable } from 'type-fest';
 import {
   restate,
   RestateAwakeable,
   RestateSagaContext,
   Saga,
 } from 'deepkit-restate';
-import { cast } from '@deepkit/type';
-import { Writable } from 'type-fest';
 
-import { CustomerServiceApi } from '@ftgo/customer-service-api';
 import {
+  CustomerOrderValidationFailed,
+  CustomerServiceApi,
+} from '@ftgo/customer-service-api';
+import {
+  PaymentAuthorizationFailed,
   PaymentAuthorized,
   PaymentServiceApi,
 } from '@ftgo/payment-service-api';
 import {
   KitchenServiceApi,
+  TicketCancellationFailed,
+  TicketCancelled,
   TicketConfirmed,
   TicketCreated,
   TicketDetails,
@@ -21,6 +27,7 @@ import {
 import {
   CreateOrderSagaApi,
   CreateOrderSagaData,
+  CreateOrderSagaRejectedState,
   CreateOrderSagaState,
   OrderApproved,
   OrderRejected,
@@ -37,17 +44,23 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     .onReply<OrderRejected>(this.handleRejected)
     .step()
     .invoke(this.validate)
+    .onReply<CustomerOrderValidationFailed>(
+      this.handleCustomerOrderValidationFailed,
+    )
     .step()
     .invoke(this.authorizePayment)
     .onReply<PaymentAuthorized>(this.handlePaymentAuthorized)
+    .onReply<PaymentAuthorizationFailed>(this.handlePaymentAuthorizationFailed)
     .compensate(this.reversePaymentAuthorization)
     .step()
     .invoke(this.createTicket)
     .onReply<TicketCreated>(this.handleTicketCreated)
-    // TODO: should this be done when the kitchen rejects the ticket?
-    .compensate(this.cancelTicket)
     .step()
     .invoke(this.waitForTicketConfirmation)
+    .step()
+    .compensate(this.cancelTicket)
+    .onReply<TicketCancelled>(this.handleTicketCancelled)
+    // .onReply<TicketCancellationFailed>(this.handleTicketCancellationFailed)
     .step()
     .invoke(this.approve)
     .onReply<OrderApproved>(this.handleApproved)
@@ -72,6 +85,8 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
   }
 
   handleRejected(data: Writable<CreateOrderSagaData>) {
+    assert<CreateOrderSagaRejectedState>(data.state);
+    data.rejectedState = data.state;
     data.state = CreateOrderSagaState.REJECTED;
   }
 
@@ -81,6 +96,10 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
   }: CreateOrderSagaData) {
     // validate that customer can authorize the money
     return this.customer.validateOrder(customerId, orderId, orderTotal);
+  }
+
+  handleCustomerOrderValidationFailed(data: Writable<CreateOrderSagaData>) {
+    data.state = CreateOrderSagaState.CUSTOMER_VALIDATION_FAILED;
   }
 
   authorizePayment({
@@ -96,6 +115,14 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
   ) {
     data.paymentId = paymentId;
     data.state = CreateOrderSagaState.PAYMENT_AUTHORIZED;
+  }
+
+  handlePaymentAuthorizationFailed(
+    data: Writable<CreateOrderSagaData>,
+    { paymentId }: PaymentAuthorizationFailed,
+  ) {
+    data.paymentId = paymentId;
+    data.state = CreateOrderSagaState.PAYMENT_AUTHORIZATION_FAILED;
   }
 
   reversePaymentAuthorization({ paymentId }: CreateOrderSagaData) {
@@ -127,16 +154,28 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     data.ticketId = ticketId;
   }
 
-  cancelTicket({ ticketId }: CreateOrderSagaData) {
+  cancelTicket({ ticketId, state }: CreateOrderSagaData) {
     if (!ticketId) {
       throw new Error('Missing ticket id');
     }
-    return this.kitchen.rejectTicket(ticketId, 'Unknown');
+    return this.kitchen.cancelTicket(
+      ticketId,
+      'Create order saga is compensating',
+    );
+  }
+
+  handleTicketCancelled(data: Writable<CreateOrderSagaData>) {
+    data.state = CreateOrderSagaState.TICKET_CANCELLED;
   }
 
   async waitForTicketConfirmation(data: Writable<CreateOrderSagaData>) {
-    await this.confirmTicketAwakeable!.promise;
-    data.state = CreateOrderSagaState.CONFIRMED;
+    try {
+      await this.confirmTicketAwakeable!.promise;
+      data.state = CreateOrderSagaState.TICKET_CONFIRMED;
+    } catch (err) {
+      data.state = CreateOrderSagaState.TICKET_REJECTED;
+      throw err;
+    }
   }
 
   approve({ orderId }: CreateOrderSagaData) {

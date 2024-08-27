@@ -23,9 +23,12 @@
     "@deepkit/rpc": "^1.0.1-alpha.153",
     "@deepkit/sql": "^1.0.1-alpha.153",
     "@deepkit/type": "^1.0.1-alpha.153",
+    "@novu/framework": "^2.0.0-canary.6",
+    "@novu/node": "^2.0.0-canary.1",
     "@restatedev/restate-sdk": "1.2.1",
-    "deepkit-restate": "0.0.71",
+    "deepkit-restate": "0.0.74",
     "kafkajs": "2.2.4",
+    "rxjs": "^7.8.1",
     "stripe": "^16.8.0",
     "tslib": "2.6.3"
   },
