@@ -64,11 +64,10 @@ export class PaymentService implements PaymentServiceHandlers {
           await this.stripe.paymentIntents.create({
             customer: customer.stripeCustomerId,
             currency: 'usd',
-            automatic_payment_methods: {
-              enabled: true,
-            },
             confirmation_method: 'manual',
             capture_method: 'manual',
+            // TODO: configurable
+            payment_method: 'pm_card_visa_debit',
             payment_method_options: {
               card: {
                 capture_method: 'manual',

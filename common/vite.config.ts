@@ -1,17 +1,19 @@
 import { defineConfig } from 'vite';
-
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
+import { deepkitType } from '@deepkit/vite';
 
 export default defineConfig({
   root: __dirname,
   cacheDir: '../node_modules/.vite/common',
 
-  plugins: [nxViteTsPaths()],
-
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [ nxViteTsPaths() ],
-  // },
+  plugins: [
+    deepkitType({
+      compilerOptions: {
+        sourceMap: true,
+      },
+    }),
+    nxViteTsPaths(),
+  ],
 
   test: {
     watch: false,

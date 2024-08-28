@@ -34,6 +34,7 @@ export class CustomerService implements CustomerServiceHandlers {
     orderId: UUID,
     orderTotal: Money,
   ): Promise<CustomerOrderValidated> {
+    // TODO: validate that customer has payment method
     const customer = await this.customer.findById(customerId);
     // TODO: validation
     // throw new CustomerOrderValidationFailed(customerId);

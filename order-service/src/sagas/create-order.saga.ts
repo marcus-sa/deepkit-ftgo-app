@@ -1,4 +1,4 @@
-import { assert, cast } from '@deepkit/type';
+import { assert, cast, deserialize } from '@deepkit/type';
 import { Writable } from 'type-fest';
 import {
   restate,
@@ -136,7 +136,7 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     orderDetails: { lineItems, restaurantId },
     orderId,
   }: CreateOrderSagaData) {
-    const details = cast<TicketDetails>({ lineItems });
+    const details = deserialize<TicketDetails>({ lineItems });
     this.confirmTicketAwakeable = this.ctx.awakeable<TicketConfirmed>();
     return this.kitchen.createTicket(
       restaurantId,

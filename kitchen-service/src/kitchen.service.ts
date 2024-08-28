@@ -12,15 +12,18 @@ import {
   TicketCancelled,
   TicketConfirmed,
   TicketCreated,
+  TicketRejected,
 } from '@ftgo/kitchen-service-api';
 
 import { TicketRepository } from './ticket.repository';
+import { KitchenRpcEventsBus } from './rpc-events';
 import { TicketDetails } from './entities';
 
 @restate.service<KitchenServiceApi>()
 export class KitchenService implements KitchenServiceHandlers {
   constructor(
     private readonly ticket: TicketRepository,
+    private readonly rpcEvents: KitchenRpcEventsBus,
     private readonly ctx: RestateServiceContext,
   ) {}
 
@@ -39,11 +42,16 @@ export class KitchenService implements KitchenServiceHandlers {
   }
 
   @restate.handler()
-  async rejectTicket(id: UUID, reason: string): Promise<void> {
+  async rejectTicket(id: UUID, reason: string): Promise<TicketRejected> {
     const ticket = await this.ticket.findById(id);
-    ticket.reject(reason);
+
+    const ticketRejected = ticket.reject(reason);
     await this.ticket.save(ticket);
+
     await this.ctx.rejectAwakeable(ticket.confirmAwakeableId!, reason);
+    await this.rpcEvents.publish(ticketRejected);
+
+    return ticketRejected;
   }
 
   @restate.handler()
@@ -52,14 +60,19 @@ export class KitchenService implements KitchenServiceHandlers {
   }
 
   @restate.handler()
-  async confirmTicket(id: UUID, readyAt: Date): Promise<void> {
+  async confirmTicket(id: UUID, readyAt: Date): Promise<TicketConfirmed> {
     const ticket = await this.ticket.findById(id);
-    ticket.confirm();
+
+    const ticketConfirmed = ticket.confirm(readyAt);
     await this.ticket.save(ticket);
+
     await this.ctx.resolveAwakeable<TicketConfirmed>(
       ticket.confirmAwakeableId!,
-      new TicketConfirmed(readyAt),
+      ticketConfirmed,
     );
+    await this.rpcEvents.publish(ticketConfirmed);
+
+    return ticketConfirmed;
   }
 
   @restate.handler()
@@ -76,7 +89,7 @@ export class KitchenService implements KitchenServiceHandlers {
       confirmAwakeableId,
     );
     const ticketCreated = new TicketCreated(ticket.id);
-    // TODO: notify kitchen that ticket has been created by triggering novu
+    await this.rpcEvents.publish(ticketCreated);
     return ticketCreated;
   }
 

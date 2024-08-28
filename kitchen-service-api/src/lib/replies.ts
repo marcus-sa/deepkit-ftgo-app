@@ -8,7 +8,10 @@ export class TicketNotFound extends Error {
 }
 
 export class TicketConfirmed {
-  constructor(public readonly readyAt: Date) {}
+  constructor(
+    public readonly ticketId: UUID,
+    public readonly readyAt: Date,
+  ) {}
 }
 
 export class TicketCancelled {
@@ -25,6 +28,6 @@ export class TicketCreated {
 export class TicketRejected {
   constructor(
     public readonly ticketId: UUID,
-    public readonly rejectedAt: Date,
+    public readonly reason: string,
   ) {}
 }
