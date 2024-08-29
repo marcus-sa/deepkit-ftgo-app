@@ -198,7 +198,7 @@ describe('CreateOrderSaga', () => {
             test('then has been handled', async () => {
               manager.runAfterReplyHandler('handleTicketCreated', data => {
                 expect(data.state).toBe(
-                  CreateOrderSagaState.WAITING_FOR_CONFIRMATION,
+                  CreateOrderSagaState.WAITING_FOR_TICKET_CONFIRMATION,
                 );
                 expect(data.ticketId).toBe(ticketId);
               });

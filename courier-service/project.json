@@ -1,0 +1,100 @@
+{
+  "name": "courier-service",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "ftgo",
+  "sourceRoot": "courier-service/src",
+  "tags": ["app:service"],
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "development",
+      "options": {
+        "outputPath": "dist/courier-service",
+        "ssr": "src/main.ts",
+        "outputFileName": "main.mjs"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "courier-service:build",
+        "watch": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "courier-service:build:development",
+          "args": ["server:start"],
+          "watch": true
+        },
+        "production": {
+          "buildTarget": "courier-service:build:production"
+        },
+        "staging": {
+          "buildTarget": "courier-service:build:staging"
+        }
+      }
+    },
+    "container": {
+      "executor": "@nx-tools/nx-container:build",
+      "dependsOn": ["build"],
+      "options": {
+        "engine": "docker",
+        "push": true,
+        "cache-from": ["type=gha"],
+        "cache-to": ["type=gha,mode=max"],
+        "metadata": {
+          "images": ["ghcr.io/zapxme/courier-service"],
+          "tags": [
+            "type=schedule",
+            "type=ref,event=branch",
+            "type=ref,event=tag",
+            "type=ref,event=pr",
+            "type=sha,prefix=sha-"
+          ]
+        }
+      }
+    },
+    "create-migration": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "courier-service:build",
+        "args": [
+          "migration:create",
+          "--migrationDir",
+          "courier-service/src/migrations"
+        ],
+        "watch": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "courier-service:build:development"
+        },
+        "production": {
+          "buildTarget": "courier-service:build:production"
+        },
+        "staging": {
+          "buildTarget": "courier-service:build:staging"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{projectRoot}/coverage"]
+    }
+  }
+}

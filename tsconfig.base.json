@@ -27,6 +27,7 @@
     "types": ["node"],
     "paths": {
       "@ftgo/common": ["common/src/index.ts"],
+      "@ftgo/courier-service-api": ["courier-service-api/src/index.ts"],
       "@ftgo/customer-service-api": ["customer-service-api/src/index.ts"],
       "@ftgo/delivery-service-api": ["delivery-service-api/src/index.ts"],
       "@ftgo/kitchen-service-api": ["kitchen-service-api/src/index.ts"],

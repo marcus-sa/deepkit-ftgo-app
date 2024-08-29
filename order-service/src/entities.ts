@@ -1,20 +1,11 @@
-import {
-  BackReference,
-  Embedded,
-  entity,
-  integer,
-  JSONPartial,
-  Positive,
-  PrimaryKey,
-  Reference,
-  UUID,
-} from '@deepkit/type';
+import { entity, integer, Positive, PrimaryKey, UUID } from '@deepkit/type';
 import { Writable } from 'type-fest';
 
 import { Money, UnsupportedStateTransitionException } from '@ftgo/common';
 
+import { DeliveryInformation } from '@ftgo/delivery-service-api';
+import { PaymentInformation } from '@ftgo/payment-service-api';
 import {
-  DeliveryInformation,
   LineItemQuantityChange,
   OrderApproved,
   OrderLineItemNotFound,
@@ -23,7 +14,6 @@ import {
   OrderRevised,
   OrderRevision,
   OrderRevisionProposed,
-  PaymentInformation,
 } from '@ftgo/order-service-api';
 
 export enum OrderState {
@@ -39,7 +29,6 @@ export enum OrderState {
 export class Order {
   readonly state: OrderState = OrderState.APPROVAL_PENDING;
   readonly orderMinimum: Money = new Money(Number.MAX_SAFE_INTEGER);
-  readonly paymentInformation?: PaymentInformation;
   readonly lineItems: OrderLineItems;
   readonly rejectedAt?: Date;
   readonly approvedAt?: Date;
@@ -49,7 +38,8 @@ export class Order {
     public readonly customerId: UUID,
     public readonly restaurantId: UUID,
     lineItems: readonly OrderLineItem[],
-    public readonly deliveryInformation?: DeliveryInformation,
+    public readonly deliveryInformation: DeliveryInformation,
+    public readonly paymentInformation: PaymentInformation,
   ) {
     this.lineItems = new OrderLineItems(lineItems);
   }

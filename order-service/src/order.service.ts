@@ -71,13 +71,21 @@ export class OrderService implements OrderServiceHandlers {
   @restate.handler()
   async create(
     orderId: UUID,
-    { customerId, restaurantId, lineItems }: OrderDetails,
+    {
+      customerId,
+      restaurantId,
+      lineItems,
+      deliveryInformation,
+      paymentInformation,
+    }: OrderDetails,
   ): Promise<OrderCreated> {
     const order = await this.order.create(
       orderId,
       customerId,
       restaurantId,
       lineItems,
+      deliveryInformation,
+      paymentInformation,
     );
     return new OrderCreated(order.id);
   }

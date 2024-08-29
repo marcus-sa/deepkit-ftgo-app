@@ -1,4 +1,4 @@
-import { assert, cast, deserialize } from '@deepkit/type';
+import { assert, deserialize } from '@deepkit/type';
 import { Writable } from 'type-fest';
 import {
   restate,
@@ -7,6 +7,14 @@ import {
   Saga,
 } from 'deepkit-restate';
 
+import {
+  CourierDeliveryAssigned,
+  CourierServiceApi,
+} from '@ftgo/courier-service-api';
+import {
+  DeliveryCreated,
+  DeliveryServiceApi,
+} from '@ftgo/delivery-service-api';
 import {
   CustomerOrderValidationFailed,
   CustomerServiceApi,
@@ -18,7 +26,6 @@ import {
 } from '@ftgo/payment-service-api';
 import {
   KitchenServiceApi,
-  TicketCancellationFailed,
   TicketCancelled,
   TicketConfirmed,
   TicketCreated,
@@ -37,6 +44,7 @@ import {
 @restate.saga<CreateOrderSagaApi>()
 export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
   confirmTicketAwakeable?: RestateAwakeable<TicketConfirmed>;
+  assignCourierToDeliveryAwakeable?: RestateAwakeable<CourierDeliveryAssigned>;
 
   readonly definition = this.step()
     .invoke(this.create)
@@ -62,6 +70,16 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     .onReply<TicketCancelled>(this.handleTicketCancelled)
     // .onReply<TicketCancellationFailed>(this.handleTicketCancellationFailed)
     .step()
+    .invoke(this.createDelivery)
+    .onReply<DeliveryCreated>(this.handleDeliveryCreated)
+    .compensate(this.cancelDelivery)
+    // TODO: courier service
+    .step()
+    // .invoke(this.findAvailableCourierAndAssignToDelivery)
+    // .onReply(this.handleCourierAssigned)
+    // .step()
+    // .invoke(this.waitForCourierAssignment)
+    // .step()
     .invoke(this.approve)
     .onReply<OrderApproved>(this.handleApproved)
     .build();
@@ -70,7 +88,9 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     private readonly customer: CustomerServiceApi,
     private readonly order: OrderServiceApi,
     private readonly kitchen: KitchenServiceApi,
+    private readonly delivery: DeliveryServiceApi,
     private readonly payment: PaymentServiceApi,
+    private readonly courier: CourierServiceApi,
     private readonly ctx: RestateSagaContext,
   ) {
     super();
@@ -150,8 +170,18 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     data: Writable<CreateOrderSagaData>,
     { ticketId }: TicketCreated,
   ) {
-    data.state = CreateOrderSagaState.WAITING_FOR_CONFIRMATION;
+    data.state = CreateOrderSagaState.WAITING_FOR_TICKET_CONFIRMATION;
     data.ticketId = ticketId;
+  }
+
+  async waitForTicketConfirmation(data: Writable<CreateOrderSagaData>) {
+    try {
+      await this.confirmTicketAwakeable!.promise;
+      data.state = CreateOrderSagaState.TICKET_CONFIRMED;
+    } catch (err) {
+      data.state = CreateOrderSagaState.TICKET_REJECTED;
+      throw err;
+    }
   }
 
   cancelTicket({ ticketId, state }: CreateOrderSagaData) {
@@ -168,15 +198,60 @@ export class CreateOrderSaga extends Saga<CreateOrderSagaData> {
     data.state = CreateOrderSagaState.TICKET_CANCELLED;
   }
 
-  async waitForTicketConfirmation(data: Writable<CreateOrderSagaData>) {
-    try {
-      await this.confirmTicketAwakeable!.promise;
-      data.state = CreateOrderSagaState.TICKET_CONFIRMED;
-    } catch (err) {
-      data.state = CreateOrderSagaState.TICKET_REJECTED;
-      throw err;
-    }
+  createDelivery({
+    orderId,
+    ticketId,
+    orderDetails: { restaurantId, customerId, deliveryInformation },
+  }: CreateOrderSagaData) {
+    this.assignCourierToDeliveryAwakeable =
+      this.ctx.awakeable<CourierDeliveryAssigned>();
+
+    return this.delivery.create(
+      orderId,
+      customerId,
+      restaurantId,
+      deliveryInformation,
+      this.assignCourierToDeliveryAwakeable.id,
+    );
   }
+
+  handleDeliveryCreated(
+    data: Writable<CreateOrderSagaData>,
+    { deliveryId }: DeliveryCreated,
+  ) {
+    // data.state = CreateOrderSagaState.DELIVERY_CREATED;
+    data.state = CreateOrderSagaState.WAITING_FOR_COURIER_ASSIGNMENT;
+    data.deliveryId = deliveryId;
+  }
+
+  cancelDelivery() {
+    throw new Error('Not implemented yet');
+  }
+
+  // findAvailableCourierAndAssignToDelivery({ deliveryId }: CreateOrderSagaData) {
+  //   return this.courier.findAvailableCourierAndAssignToDelivery(
+  //     deliveryId!,
+  //     this.assignCourierToDeliveryAwakeable!.id,
+  //   );
+  // }
+
+  // handleCourierAssigned(
+  //   data: Writable<CreateOrderSagaData>,
+  //   { courierId }: CourierDeliveryAssigned,
+  // ) {
+  //   // TODO: add courier id to delivery
+  //   data.state = CreateOrderSagaState.WAITING_FOR_COURIER_ASSIGNMENT;
+  // }
+
+  // async waitForCourierAssignment(data: Writable<CreateOrderSagaData>) {
+  //   try {
+  //     await this.assignCourierToDeliveryAwakeable!.promise;
+  //     // data.state = CreateOrderSagaState.COURIER_DELIVERY_ASSIGNMENT_COMPLETE;;
+  //   } catch (err) {
+  //     // data.state = CreateOrderSagaState.COURIER_DELIVERY_ASSIGNMENT_FAILED;
+  //     throw err;
+  //   }
+  // }
 
   approve({ orderId }: CreateOrderSagaData) {
     return this.order.approve(orderId);

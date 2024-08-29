@@ -69,7 +69,7 @@ describe('create order', () => {
       {
         const state = await createOrderSaga.state(orderId);
         expect(state.sagaData.state).toBe(
-          CreateOrderSagaState.WAITING_FOR_CONFIRMATION,
+          CreateOrderSagaState.WAITING_FOR_TICKET_CONFIRMATION,
         );
       }
       await rpc.kitchen.rejectTicket(ticketId, 'Missing ingredients');
@@ -121,7 +121,7 @@ describe('create order', () => {
       {
         const state = await createOrderSaga.state(orderId);
         expect(state.sagaData.state).toBe(
-          CreateOrderSagaState.WAITING_FOR_CONFIRMATION,
+          CreateOrderSagaState.WAITING_FOR_TICKET_CONFIRMATION,
         );
       }
       await rpc.kitchen.confirmTicket(ticketId, new Date());

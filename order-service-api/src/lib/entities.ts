@@ -1,6 +1,8 @@
-import { float, integer, Positive, UUID } from '@deepkit/type';
+import { integer, Positive, UUID } from '@deepkit/type';
 
-import { Address, Money, RevisedOrderLineItem } from '@ftgo/common';
+import { Money, RevisedOrderLineItem } from '@ftgo/common';
+import { DeliveryInformation } from '@ftgo/delivery-service-api';
+import { PaymentInformation } from '@ftgo/payment-service-api';
 
 export class OrderRevision {
   constructor(
@@ -27,15 +29,10 @@ export interface OrderDetails {
   readonly customerId: UUID;
   readonly restaurantId: UUID;
   readonly lineItems: readonly OrderLineItem[];
+  readonly deliveryInformation: DeliveryInformation;
+  readonly paymentInformation: PaymentInformation;
   readonly orderTotal: Money;
 }
-
-export interface DeliveryInformation {
-  readonly address: Address;
-  readonly time: Date;
-}
-
-export interface PaymentInformation {}
 
 // @entity.name('delivery-information')
 // export class DeliveryInformation {
