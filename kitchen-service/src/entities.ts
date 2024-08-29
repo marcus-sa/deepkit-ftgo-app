@@ -57,7 +57,6 @@ export class Ticket {
   ) {}
 
   reject(this: Writable<this>, reason: string): TicketRejected {
-    console.log('reject');
     if (this.state !== TicketState.CREATED) {
       throw new UnsupportedStateTransitionException(this.state);
     }

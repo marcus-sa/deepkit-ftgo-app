@@ -37,14 +37,12 @@ export class KitchenController implements KitchenRpcController {
   }
 
   @rpc.action()
-  async confirmTicket(id: UUID, readyAt: Date): Promise<void> {
-    // return await this.client.rpc(this.kitchen.confirmTicket(id, readyAt));
-    await this.client.send(this.kitchen.confirmTicket(id, readyAt));
+  async confirmTicket(id: UUID, readyAt: Date): Promise<TicketConfirmed> {
+    return await this.client.rpc(this.kitchen.confirmTicket(id, readyAt));
   }
 
   @rpc.action()
-  async rejectTicket(id: UUID, reason: string): Promise<void> {
-    // return await this.client.rpc(this.kitchen.rejectTicket(id, reason));
-    await this.client.send(this.kitchen.rejectTicket(id, reason));
+  async rejectTicket(id: UUID, reason: string): Promise<TicketRejected> {
+    return await this.client.rpc(this.kitchen.rejectTicket(id, reason));
   }
 }

@@ -3,6 +3,7 @@ import { UUID, uuid } from '@deepkit/type';
 import { faker } from '@faker-js/faker';
 import { sleep } from '@deepkit/core';
 
+import { TicketCreated } from '@ftgo/kitchen-service-api';
 import { Money } from '@ftgo/common';
 import {
   CreateOrderSagaApi,
@@ -13,10 +14,7 @@ import {
 import { client } from './clients';
 import * as helpers from './helpers';
 import * as rpc from './rpc';
-import * as restate from './services';
-import { TicketCreated } from '@ftgo/kitchen-service-api';
 import { kitchen } from './services';
-import { take } from 'rxjs';
 
 const createOrderSaga = client.saga<CreateOrderSagaApi>();
 
@@ -42,7 +40,7 @@ describe('create order', () => {
 
   describe('when payment fails to be authorized', () => {});
 
-  test('order fails to be validated because kitchen rejects ticket', async () => {
+  test('order creation failed because ticket was rejected', async () => {
     const orderId = uuid();
 
     const orderDetails: OrderDetails = {
@@ -88,11 +86,62 @@ describe('create order', () => {
 
     await sleep(3);
 
+    expect(handleCreatedTickets).toHaveBeenCalledTimes(1);
+
     const state = await createOrderSaga.state(orderId);
     expect(state.sagaData.state).toBe(CreateOrderSagaState.REJECTED);
+  });
 
-    // TODO: figure out why events are being published an extra time
+  test('order creation was successful', async () => {
+    const orderId = uuid();
+
+    const orderDetails: OrderDetails = {
+      customerId,
+      restaurantId,
+      lineItems: [
+        {
+          quantity: 1,
+          name: faker.food.dish(),
+          price: new Money(10),
+        },
+      ],
+      orderTotal: new Money(10),
+    };
+
+    const createdTickets = await rpc.kitchen.createdTickets();
+
+    const handleCreatedTickets = vi.fn(async ({ ticketId }: TicketCreated) => {
+      {
+        const state = await createOrderSaga.state(orderId);
+        expect(state.sagaData.state).toBe(
+          CreateOrderSagaState.PAYMENT_AUTHORIZED,
+        );
+      }
+      await sleep(1);
+      {
+        const state = await createOrderSaga.state(orderId);
+        expect(state.sagaData.state).toBe(
+          CreateOrderSagaState.WAITING_FOR_CONFIRMATION,
+        );
+      }
+      await rpc.kitchen.confirmTicket(ticketId, new Date());
+    });
+
+    createdTickets.subscribe(handleCreatedTickets);
+
+    const { status } = await createOrderSaga.start(orderId, {
+      orderId,
+      orderDetails,
+    });
+
+    expect(status).toBe('Accepted');
+
+    await sleep(4);
+
     expect(handleCreatedTickets).toHaveBeenCalledTimes(1);
+
+    const state = await createOrderSaga.state(orderId);
+    expect(state.sagaData.state).toBe(CreateOrderSagaState.APPROVED);
   });
 
   test('payment fails to be authorized', async () => {});

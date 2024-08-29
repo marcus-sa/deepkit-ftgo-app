@@ -7,6 +7,6 @@ export interface KitchenRpcController {
   createdTickets(): Promise<Observable<TicketCreated>>;
   rejectedTickets(): Promise<Observable<TicketRejected>>;
   confirmedTickets(): Promise<Observable<TicketConfirmed>>;
-  confirmTicket(id: UUID, readyAt: Date): Promise<void>;
-  rejectTicket(id: UUID, reason: string): Promise<void>;
+  confirmTicket(id: UUID, readyAt: Date): Promise<TicketConfirmed>;
+  rejectTicket(id: UUID, reason: string): Promise<TicketRejected>;
 }

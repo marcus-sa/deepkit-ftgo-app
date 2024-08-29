@@ -16,8 +16,10 @@ import { Money, UnsupportedStateTransitionException } from '@ftgo/common';
 import {
   DeliveryInformation,
   LineItemQuantityChange,
+  OrderApproved,
   OrderLineItemNotFound,
   OrderMinimumNotMet,
+  OrderRejected,
   OrderRevised,
   OrderRevision,
   OrderRevisionProposed,
@@ -40,6 +42,7 @@ export class Order {
   readonly paymentInformation?: PaymentInformation;
   readonly lineItems: OrderLineItems;
   readonly rejectedAt?: Date;
+  readonly approvedAt?: Date;
 
   constructor(
     public readonly id: UUID & PrimaryKey,
@@ -72,19 +75,26 @@ export class Order {
     this.state = OrderState.CANCELLED;
   }
 
-  noteApproved(this: Writable<this>): void {
+  approve(this: Writable<this>): OrderApproved {
     if (this.state !== OrderState.APPROVAL_PENDING) {
       throw new UnsupportedStateTransitionException(this.state);
     }
+
     this.state = OrderState.APPROVED;
+    this.approvedAt = new Date();
+
+    return new OrderApproved(this.id, this.approvedAt);
   }
 
-  noteRejected(this: Writable<this>) {
+  reject(this: Writable<this>): OrderRejected {
     if (this.state !== OrderState.APPROVAL_PENDING) {
       throw new UnsupportedStateTransitionException(this.state);
     }
+
     this.state = OrderState.REJECTED;
     this.rejectedAt = new Date();
+
+    return new OrderRejected(this.id, this.rejectedAt);
   }
 
   noteReservingPayment() {}

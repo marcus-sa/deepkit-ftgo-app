@@ -4,10 +4,10 @@ import { UUID } from '@deepkit/type';
 import { RestaurantCreatedEvent } from '@ftgo/restaurant-service-api';
 
 import { OrderDetails } from './entities';
-import { OrderApproved, OrderRejected } from './replies';
+import { OrderApproved, OrderCreated, OrderRejected } from './replies';
 
 export interface OrderServiceHandlers {
-  create(orderId: UUID, details: OrderDetails): Promise<UUID>;
+  create(orderId: UUID, details: OrderDetails): Promise<OrderCreated>;
   beginCancel(id: UUID): Promise<void>;
   undoBeginCancel(id: UUID): Promise<void>;
   undoCancel(id: UUID): Promise<void>;

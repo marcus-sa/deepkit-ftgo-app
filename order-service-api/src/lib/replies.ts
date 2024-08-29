@@ -15,9 +15,23 @@ export class OrderNotFound extends Error {
   }
 }
 
-export class OrderApproved {}
+export class OrderCreated {
+  constructor(public readonly orderId: UUID) {}
+}
 
-export class OrderRejected {}
+export class OrderApproved {
+  constructor(
+    public readonly orderId: UUID,
+    public readonly approvedAt: Date,
+  ) {}
+}
+
+export class OrderRejected {
+  constructor(
+    public readonly orderId: UUID,
+    public readonly rejectedAt: Date,
+  ) {}
+}
 
 export class OrderRevisionProposed {
   constructor(
